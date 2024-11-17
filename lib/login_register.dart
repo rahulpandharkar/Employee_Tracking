@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home_page.dart'; // Import the HomePage widget
+import 'admin_dashboard.dart'; // Import AdminDashboard widget
 
 class LoginRegister extends StatefulWidget {
   const LoginRegister({super.key});
@@ -24,26 +25,48 @@ class _LoginRegisterState extends State<LoginRegister> {
     try {
       if (_isRegistering) {
         // Registration logic
-        await _auth.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-        _showSuccessDialog('Registration successful');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
+        if (_emailController.text.trim() == "admin") {
+          // Skip email validation for "admin" user
+          await _auth.createUserWithEmailAndPassword(
+            email: "admin@admin.com", // Set a dummy valid email
+            password: _passwordController.text.trim(),
+          );
+          _showSuccessDialog('Registration successful');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        } else {
+          await _auth.createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+          _showSuccessDialog('Registration successful');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        }
       } else {
         // Login logic
-        await _auth.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-        _showSuccessDialog('Login successful');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
+        if (_emailController.text.trim() == "admin" &&
+            _passwordController.text.trim() == "admin") {
+          // Skip email validation for "admin"
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminDashboard()),
+          );
+        } else {
+          UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+          _showSuccessDialog('Login successful');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        }
       }
     } catch (e) {
       _showErrorDialog('Failed: ' + e.toString());
