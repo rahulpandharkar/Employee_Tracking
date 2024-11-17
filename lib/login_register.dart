@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'home_page.dart'; // Import the HomePage widget
 
 class LoginRegister extends StatefulWidget {
   const LoginRegister({super.key});
@@ -22,18 +23,30 @@ class _LoginRegisterState extends State<LoginRegister> {
   Future<void> _emailSignIn() async {
     try {
       if (_isRegistering) {
+        // Registration logic
         await _auth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
+        _showSuccessDialog('Registration successful');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
       } else {
+        // Login logic
         await _auth.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
+        _showSuccessDialog('Login successful');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
       }
     } catch (e) {
-      _showErrorDialog(e.toString());
+      _showErrorDialog('Failed: ' + e.toString());
     }
   }
 
@@ -48,10 +61,32 @@ class _LoginRegisterState extends State<LoginRegister> {
           idToken: googleAuth.idToken,
         );
         await _auth.signInWithCredential(credential);
+        _showSuccessDialog('Google Sign-In successful');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
       }
     } catch (e) {
-      _showErrorDialog(e.toString());
+      _showErrorDialog('Google Sign-In failed: ' + e.toString());
     }
+  }
+
+  // Show success dialog
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Success'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   // Show error dialog
