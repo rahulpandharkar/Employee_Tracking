@@ -66,8 +66,8 @@ Ensure you have Flutter installed on your local machine. Refer to the official g
 This application uses Firebase services for authentication and data storage. To set up Firebase, follow these steps:
 
 1. **Create a Firebase project:** Visit the [Firebase Console](https://firebase.google.com/docs/projects/api/workflow_set-up-and-manage-project).
-2. **Add your Android app:** Include your app (package name found in `android/app/src/main/AndroidManifest.xml`) in the Firebase project.
-3. **Enable Firebase Authentication:** Activate Firebase Authentication for your app and configure Biometric Authentication.
+2. **Add your Android app:** Include your app (package name found in `android/app/src/main/AndroidManifest.xml`) in the Firebase project. Visit the [Adding Android App to Firebase](https://firebase.google.com/docs/android/setup?authuser=0&hl=en).
+3. **Enable Firebase Authentication:** Activate Firebase Authentication for your app.
 4. **Set up Firestore:** Configure Firestore to store employee check-in/check-out data.
 
 
