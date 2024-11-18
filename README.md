@@ -12,49 +12,49 @@ This Flutter-based application helps organizations track employee check-in and c
 - A comprehensive view of **employee check-in and check-out history**.
 - A **map visualization** displaying the location of the last check-in for each employee.
 
-## Screenshots
+# Screenshots
 
-### 1. Login/Register Page
-![Login/Register Page](screenshots/login_register.jpg)  
-The login and registration page where employees can sign in or create an account to access the application.
+## Application Screens
 
----
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
 
-### 2. Home Page
-![Home Page](screenshots/home.jpg)  
-The employee's home page after logging in, providing options to check in and check out.
+  <div style="text-align: center;">
+    <img src="screenshots/login_register.jpg" alt="Login/Register Page" style="width: 200px; height: auto;">
+    <p>Login/Register Page</p>
+  </div>
 
----
+  <div style="text-align: center;">
+    <img src="screenshots/home.jpg" alt="Home Page" style="width: 200px; height: auto;">
+    <p>Home Page</p>
+  </div>
 
-### 3. Admin Home Page
-![Admin Home Page](screenshots/admin_home.jpg)  
-The admin's home page for managing employees, viewing history, and accessing maps.
+  <div style="text-align: center;">
+    <img src="screenshots/admin_home.jpg" alt="Admin Home Page" style="width: 200px; height: auto;">
+    <p>Admin Home Page</p>
+  </div>
 
----
+  <div style="text-align: center;">
+    <img src="screenshots/admin_view_history.jpg" alt="View History for Admin" style="width: 200px; height: auto;">
+    <p>View History for Admin</p>
+  </div>
 
-### 4. View History for Admin
-![View History for Admin](screenshots/admin_view_history.jpg)  
-The admin panel for viewing the history of employee check-ins and check-outs.
+  <div style="text-align: center;">
+    <img src="screenshots/admin_show_history.jpg" alt="View History Details" style="width: 200px; height: auto;">
+    <p>View History Details</p>
+  </div>
 
----
+  <div style="text-align: center;">
+    <img src="screenshots/admin_maps.jpg" alt="Maps for Admin" style="width: 200px; height: auto;">
+    <p>Maps for Admin</p>
+  </div>
 
-### 5. View History Details for Admin
-![History Details](screenshots/admin_show_history.jpg)  
-Detailed view of a selected employee's history, displaying timestamps and related information.
+  <div style="text-align: center;">
+    <img src="screenshots/admin_details_on_map.jpg" alt="Details on Map" style="width: 200px; height: auto;">
+    <p>Details on Map</p>
+  </div>
 
----
+</div>
 
-### 6. Maps for Admin
-![Maps for Admin](screenshots/admin_maps.jpg)  
-The map interface for the admin to view employee locations and other geographic details.
-
----
-
-### 7. Details on Map for Admin
-![Details on Map](screenshots/admin_details_on_map.jpg)  
-Detailed information overlay on the map for selected employees or events.
-
----
 
 ### Technologies and Libraries
 - **Dart:** The programming language for building the Flutter application.
