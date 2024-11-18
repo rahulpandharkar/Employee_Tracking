@@ -18,23 +18,51 @@ This Flutter-based application helps organizations track employee check-in and c
 
 # Screenshots
 
+# Screenshots
+
 ## Application Screens
 
-| ![Login/Register Page](screenshots/login_register.jpg) | ![Home Page](screenshots/home.jpg) |
-| ------------------------------------------------------ | ---------------------------------- |
-| **Login/Register Page**                                | **Home Page**                     |
+<table>
+  <tr>
+    <td style="text-align: center;">
+      <img src="screenshots/login_register.jpg" alt="Login/Register Page" style="width: 200px; height: auto;">
+      <p>Login/Register Page</p>
+    </td>
+    <td style="text-align: center;">
+      <img src="screenshots/home.jpg" alt="Home Page" style="width: 200px; height: auto;">
+      <p>Home Page</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">
+      <img src="screenshots/admin_home.jpg" alt="Admin Home Page" style="width: 200px; height: auto;">
+      <p>Admin Home Page</p>
+    </td>
+    <td style="text-align: center;">
+      <img src="screenshots/admin_view_history.jpg" alt="View History for Admin" style="width: 200px; height: auto;">
+      <p>View History for Admin</p>
+    </td>
+  </tr>
+</table>
 
-| ![Admin Home Page](screenshots/admin_home.jpg)         | ![View History for Admin](screenshots/admin_view_history.jpg) |
-| ------------------------------------------------------ | ----------------------------------------------------------- |
-| **Admin Home Page**                                    | **View History for Admin**                                   |
-
-| ![View History Details](screenshots/admin_show_history.jpg) | ![Maps for Admin](screenshots/admin_maps.jpg) |
-| ------------------------------------------------------------ | -------------------------------------------- |
-| **View History Details**                                    | **Maps for Admin**                           |
-
-| ![Details on Map](screenshots/admin_details_on_map.jpg) |
-| ------------------------------------------------------ |
-| **Details on Map**                                     |
+<table>
+  <tr>
+    <td style="text-align: center;">
+      <img src="screenshots/admin_show_history.jpg" alt="View History Details" style="width: 200px; height: auto;">
+      <p>View History Details</p>
+    </td>
+    <td style="text-align: center;">
+      <img src="screenshots/admin_maps.jpg" alt="Maps for Admin" style="width: 200px; height: auto;">
+      <p>Maps for Admin</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">
+      <img src="screenshots/admin_details_on_map.jpg" alt="Details on Map" style="width: 200px; height: auto;">
+      <p>Details on Map</p>
+    </td>
+  </tr>
+</table>
 
 
 ### Technologies and Libraries
