@@ -65,7 +65,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             List<Map<String, dynamic>> historyData = snapshot.data!;
 
             return AlertDialog(
-              title: Text('$historyType History'),
+              title: Text('Location History'),
               content: SingleChildScrollView(
                 child: Column(
                   children: historyData.map((data) {
