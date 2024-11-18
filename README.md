@@ -14,6 +14,8 @@ This Flutter-based application helps organizations track employee check-in and c
 
 # Screenshots
 
+# Screenshots
+
 ## Application Screens
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
@@ -37,6 +39,10 @@ This Flutter-based application helps organizations track employee check-in and c
     <img src="screenshots/admin_view_history.jpg" alt="View History for Admin" style="width: 200px; height: auto;">
     <p>View History for Admin</p>
   </div>
+
+</div>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
 
   <div style="text-align: center;">
     <img src="screenshots/admin_show_history.jpg" alt="View History Details" style="width: 200px; height: auto;">
