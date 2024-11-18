@@ -14,55 +14,23 @@ This Flutter-based application helps organizations track employee check-in and c
 
 # Screenshots
 
-# Screenshots
-
-# Screenshots
-
-# Screenshots
-
 ## Application Screens
 
-<table>
-  <tr>
-    <td style="text-align: center;">
-      <img src="screenshots/login_register.jpg" alt="Login/Register Page" style="width: 200px; height: auto;">
-      <p>Login/Register Page</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="screenshots/home.jpg" alt="Home Page" style="width: 200px; height: auto;">
-      <p>Home Page</p>
-    </td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">
-      <img src="screenshots/admin_home.jpg" alt="Admin Home Page" style="width: 200px; height: auto;">
-      <p>Admin Home Page</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="screenshots/admin_view_history.jpg" alt="View History for Admin" style="width: 200px; height: auto;">
-      <p>View History for Admin</p>
-    </td>
-  </tr>
-</table>
+| <img src="screenshots/login_register.jpg" alt="Login/Register Page" width="200" /> | <img src="screenshots/home.jpg" alt="Home Page" width="200" /> |
+| -------------------------------------------------------- | ------------------------------------------------------ |
+| **Login/Register Page**                                  | **Home Page**                                           |
 
-<table>
-  <tr>
-    <td style="text-align: center;">
-      <img src="screenshots/admin_show_history.jpg" alt="View History Details" style="width: 200px; height: auto;">
-      <p>View History Details</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="screenshots/admin_maps.jpg" alt="Maps for Admin" style="width: 200px; height: auto;">
-      <p>Maps for Admin</p>
-    </td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">
-      <img src="screenshots/admin_details_on_map.jpg" alt="Details on Map" style="width: 200px; height: auto;">
-      <p>Details on Map</p>
-    </td>
-  </tr>
-</table>
+| <img src="screenshots/admin_home.jpg" alt="Admin Home Page" width="200" />        | <img src="screenshots/admin_view_history.jpg" alt="View History for Admin" width="200" /> |
+| -------------------------------------------------------- | -------------------------------------------------------------- |
+| **Admin Home Page**                                      | **View History for Admin**                                     |
+
+| <img src="screenshots/admin_show_history.jpg" alt="View History Details" width="200" /> | <img src="screenshots/admin_maps.jpg" alt="Maps for Admin" width="200" /> |
+| --------------------------------------------------------------- | ------------------------------------------------------ |
+| **View History Details**                                     | **Maps for Admin**                                           |
+
+| <img src="screenshots/admin_details_on_map.jpg" alt="Details on Map" width="200" /> |
+| -------------------------------------------------------- |
+| **Details on Map**                                        |
 
 
 ### Technologies and Libraries
