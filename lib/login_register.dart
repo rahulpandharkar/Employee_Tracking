@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:local_auth/local_auth.dart';  // Import local_auth
 import 'home_page.dart'; // Import the HomePage widget
 import 'admin_dashboard.dart'; // Import AdminDashboard widget
 
@@ -14,11 +15,12 @@ class LoginRegister extends StatefulWidget {
 class _LoginRegisterState extends State<LoginRegister> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final LocalAuthentication _localAuth = LocalAuthentication();  // Create a LocalAuthentication instance
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _isRegistering = true;
+  bool _isRegistering = false;
 
   // Handle email/password sign-in or registration
   Future<void> _emailSignIn() async {
@@ -92,6 +94,30 @@ class _LoginRegisterState extends State<LoginRegister> {
       }
     } catch (e) {
       _showErrorDialog('Google Sign-In failed: ' + e.toString());
+    }
+  }
+
+  // Fingerprint authentication
+  Future<void> _authenticateWithFingerprint() async {
+    try {
+      bool isAuthenticated = await _localAuth.authenticate(
+        localizedReason: 'Please authenticate to login',
+        options: const AuthenticationOptions(
+          useErrorDialogs: true, // Use error dialogs if authentication fails
+          stickyAuth: true, // Keep authentication active until completed
+        ),
+      );
+      if (isAuthenticated) {
+        _showSuccessDialog('Fingerprint authentication successful');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        _showErrorDialog('Authentication failed');
+      }
+    } catch (e) {
+      _showErrorDialog('Fingerprint authentication failed: ' + e.toString());
     }
   }
 
@@ -176,6 +202,11 @@ class _LoginRegisterState extends State<LoginRegister> {
               onPressed: _googleSignInMethod,
               icon: const Icon(Icons.account_circle), // Simple Google icon
               label: const Text('Sign in with Google'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _authenticateWithFingerprint,
+              child: const Text('Login with Fingerprint'),
             ),
           ],
         ),
