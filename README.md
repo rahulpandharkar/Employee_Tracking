@@ -12,7 +12,6 @@ This Flutter-based application helps organizations track employee check-in and c
 - A comprehensive view of **employee check-in and check-out history**.
 - A **map visualization** displaying the location of the last check-in for each employee.
 
-# Screenshots
 
 ## Application Screens
 
@@ -22,7 +21,7 @@ This Flutter-based application helps organizations track employee check-in and c
 
 | <img src="screenshots/admin_show_history.jpg" alt="View History Details" width="200" /> | <img src="screenshots/admin_maps.jpg" alt="Maps for Admin" width="200" /> | <img src="screenshots/admin_details_on_map.jpg" alt="Details on Map" width="200" /> |  |
 | ------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| **View History Details**                                     | **Maps for Admin**                                          | **Details on Map**                                           |  |
+| **View History Details**                                     | **Maps for Admin**                                          | **Details on Map**                                           
 
 
 ### Technologies and Libraries
