@@ -53,6 +53,9 @@ Ensure you have Flutter installed on your local machine. Refer to the official g
   - `home_page.dart`: The primary screen for employee check-in/check-out.
   - `monitor_location.dart`: Handles location tracking and permission requests.
   - `login_register.dart`: Manages the sign-in process using Firebase Authentication.
+  - `admin_dashboard.dart`: Deals with the Admin Dashboard to view CheckIn/CheckOut Histories
+  - `maps.dart`: Provides the map to view Employee Location
+  - `firestore_service.dart` and `location_service.dart`: Supporting files for Handling Firebase and location communications
 
 - **android/**: Contains Android-specific code and configuration files.
   - `AndroidManifest.xml`: Specifies Android app configuration and permissions.
