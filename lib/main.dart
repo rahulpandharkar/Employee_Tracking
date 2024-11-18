@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Firebase Check & Location Monitor',
+      title: 'Employee Tracking Application',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -41,7 +41,7 @@ class FirebaseStatusPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Firebase Status & Location Monitoring'),
+        title: const Text('Employee Tracking Application'),
       ),
       body: Center(
         child: ElevatedButton(

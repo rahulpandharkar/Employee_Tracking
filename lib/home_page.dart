@@ -11,7 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _location = "Press the button to get location";
+  String _location = "Press the button to check-in";
   String _statusMessage = "Status: Ready to check in";
   bool _hasCheckedIn = false;
   String _email = '';  // Placeholder email
@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home Page')),
+      appBar: AppBar(title: const Text('Home')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(  // Ensure the content is always centered

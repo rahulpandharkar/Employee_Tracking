@@ -191,7 +191,7 @@ class _MapsScreenState extends State<MapsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Active Check-ins'),
+        title: const Text('Active Employees'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

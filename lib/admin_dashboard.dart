@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shimmer/shimmer.dart'; // Add shimmer effect
 import 'maps.dart'; // Import the new maps.dart file
 
 class AdminDashboard extends StatefulWidget {
@@ -40,7 +41,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     showDialog(
       context: context,
       builder: (context) {
-        return FutureBuilder<List<Map<String, dynamic>>>( 
+        return FutureBuilder<List<Map<String, dynamic>>>(
           future: fetchHistory(email, historyType),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -70,12 +71,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   children: historyData.map((data) {
                     return Card(
                       margin: EdgeInsets.symmetric(vertical: 5),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Action: ${data['action']}'),
+                            Text('Action: ${data['action']}', style: TextStyle(fontWeight: FontWeight.bold)),
                             Text('Latitude: ${data['latitude']}'),
                             Text('Longitude: ${data['longitude']}'),
                             Text('Timestamp: ${data['timestamp'].toDate()}'),
@@ -103,16 +106,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard')),
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
+      ),
       body: FutureBuilder<List<DocumentSnapshot>>(
         future: fetchUserDocuments(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 200,
+                  height: 20,
+                  color: Colors.grey,
+                ),
+              ),
+            );
           }
 
           if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
-            return Center(child: Text('No users found.'));
+            return Center(
+              child: Text(
+                'No users found.',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+            );
           }
 
           List<DocumentSnapshot> users = snapshot.data!;
@@ -121,7 +143,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                // This is the "View Map" button that is outside of the list
+                // "View Map" button
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -131,51 +153,66 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ),
                     );
                   },
-                  child: Text('View Map'),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    backgroundColor: Colors.greenAccent,
+                  ),
+                  child: Text(
+                    'View Map',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                SizedBox(height: 20), // Add some space between button and list
-                // List of users
+                SizedBox(height: 20), // Add space between button and list
                 Expanded(
                   child: ListView.builder(
                     itemCount: users.length,
                     itemBuilder: (context, index) {
                       String email = users[index].id;
-                      return Card(
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        child: ListTile(
-                          title: Text(email),
-                          trailing: Icon(Icons.arrow_forward),
-                          onTap: () {
-                            // Show options for checkin or checkout history
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text('Select History'),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          showHistoryModal(context, email, 'checkinhistory');
-                                        },
-                                        child: Text('View Check-in History'),
-                                      ),
-                                      SizedBox(height: 10),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          showHistoryModal(context, email, 'checkouthistory');
-                                        },
-                                        child: Text('View Check-out History'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
+                      return GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('Select History'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        showHistoryModal(context, email, 'checkinhistory');
+                                      },
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                                      child: Text('View Check-in History'),
+                                    ),
+                                    SizedBox(height: 10),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        showHistoryModal(context, email, 'checkouthistory');
+                                      },
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                      child: Text('View Check-out History'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        child: Card(
+                          margin: EdgeInsets.symmetric(vertical: 10),
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              child: Icon(Icons.person),
+                              backgroundColor: Colors.blueAccent,
+                            ),
+                            title: Text(email),
+                            trailing: Icon(Icons.arrow_forward_ios),
+                          ),
                         ),
                       );
                     },
