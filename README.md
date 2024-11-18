@@ -26,7 +26,6 @@ This Flutter-based application helps organizations track employee check-in and c
 - **Detailed check-in history view** for admin users.
 - **Interactive map** for admins to visualize the location of the last check-in.
 
----
 
 ## Getting Started
 
@@ -41,14 +40,11 @@ Ensure you have Flutter installed on your local machine. Refer to the official g
 1. Open your terminal or command prompt.
 2. Clone this repository
 3. Navigate to the project directory
-4. Run ```
-flutter pub get
-```
+4. Run ```flutter pub get ```
 
 
 **Note:** Make sure that an emulator is running or a physical device is connected to your machine.
 
----
 
 ## Project Structure
 
@@ -61,7 +57,6 @@ flutter pub get
 - **android/**: Contains Android-specific code and configuration files.
   - `AndroidManifest.xml`: Specifies Android app configuration and permissions.
 
----
 
 ## Firebase Setup
 
@@ -72,12 +67,10 @@ This application uses Firebase services for authentication and data storage. To 
 3. **Enable Firebase Authentication:** Activate Firebase Authentication for your app and configure Biometric Authentication.
 4. **Set up Firestore:** Configure Firestore to store employee check-in/check-out data.
 
----
+
 
 ## Final Step 
 
 1. Once all the prerequisites are sorted and you have everything in order to run the project, 
-do a ```
-flutter pub get
-```
+do a ```flutter pub get```
 in your console. 
