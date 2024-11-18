@@ -53,6 +53,9 @@ Ensure you have Flutter installed on your local machine. Refer to the official g
   - `home_page.dart`: The primary screen for employee check-in/check-out.
   - `monitor_location.dart`: Handles location tracking and permission requests.
   - `login_register.dart`: Manages the sign-in process using Firebase Authentication.
+  - `admin_dashboard.dart`: Deals with the Admin Dashboard to view CheckIn/CheckOut Histories
+  - `maps.dart`: Provides the map to view Employee Location
+  - `firestore_service.dart` and `location_service.dart`: Supporting files for Handling Firebase and location communications
 
 - **android/**: Contains Android-specific code and configuration files.
   - `AndroidManifest.xml`: Specifies Android app configuration and permissions.
@@ -62,15 +65,15 @@ Ensure you have Flutter installed on your local machine. Refer to the official g
 
 This application uses Firebase services for authentication and data storage. To set up Firebase, follow these steps:
 
-1. **Create a Firebase project:** Visit the [Firebase Console](https://firebase.google.com/docs/projects/api/workflow_set-up-and-manage-project).
-2. **Add your Android app:** Include your app (package name found in `android/app/src/main/AndroidManifest.xml`) in the Firebase project.
-3. **Enable Firebase Authentication:** Activate Firebase Authentication for your app and configure Biometric Authentication.
+1. **Create a Firebase project:** Visit the [Firebase Console](https://console.firebase.google.com/).
+2. **Add your Android app:** Include your app (package name found in `android/app/src/main/AndroidManifest.xml`) in the Firebase project. Visit the [Adding Android App to Firebase](https://firebase.google.com/docs/android/setup?authuser=0&hl=en).
+3. **Enable Firebase Authentication:** Activate Firebase Authentication for your app.
 4. **Set up Firestore:** Configure Firestore to store employee check-in/check-out data.
 
 
 
 ## Final Step 
 
-1. Once all the prerequisites are sorted and you have everything in order to run the project, 
-do a ```flutter pub get```
+Once all the prerequisites are sorted and you have everything in order to run the project, 
+do a ```flutter run```
 in your console. 
