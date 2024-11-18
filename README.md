@@ -16,50 +16,25 @@ This Flutter-based application helps organizations track employee check-in and c
 
 # Screenshots
 
+# Screenshots
+
 ## Application Screens
 
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+| ![Login/Register Page](screenshots/login_register.jpg) | ![Home Page](screenshots/home.jpg) |
+| ------------------------------------------------------ | ---------------------------------- |
+| **Login/Register Page**                                | **Home Page**                     |
 
-  <div style="text-align: center;">
-    <img src="screenshots/login_register.jpg" alt="Login/Register Page" style="width: 200px; height: auto;">
-    <p>Login/Register Page</p>
-  </div>
+| ![Admin Home Page](screenshots/admin_home.jpg)         | ![View History for Admin](screenshots/admin_view_history.jpg) |
+| ------------------------------------------------------ | ----------------------------------------------------------- |
+| **Admin Home Page**                                    | **View History for Admin**                                   |
 
-  <div style="text-align: center;">
-    <img src="screenshots/home.jpg" alt="Home Page" style="width: 200px; height: auto;">
-    <p>Home Page</p>
-  </div>
+| ![View History Details](screenshots/admin_show_history.jpg) | ![Maps for Admin](screenshots/admin_maps.jpg) |
+| ------------------------------------------------------------ | -------------------------------------------- |
+| **View History Details**                                    | **Maps for Admin**                           |
 
-  <div style="text-align: center;">
-    <img src="screenshots/admin_home.jpg" alt="Admin Home Page" style="width: 200px; height: auto;">
-    <p>Admin Home Page</p>
-  </div>
-
-  <div style="text-align: center;">
-    <img src="screenshots/admin_view_history.jpg" alt="View History for Admin" style="width: 200px; height: auto;">
-    <p>View History for Admin</p>
-  </div>
-
-</div>
-
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-
-  <div style="text-align: center;">
-    <img src="screenshots/admin_show_history.jpg" alt="View History Details" style="width: 200px; height: auto;">
-    <p>View History Details</p>
-  </div>
-
-  <div style="text-align: center;">
-    <img src="screenshots/admin_maps.jpg" alt="Maps for Admin" style="width: 200px; height: auto;">
-    <p>Maps for Admin</p>
-  </div>
-
-  <div style="text-align: center;">
-    <img src="screenshots/admin_details_on_map.jpg" alt="Details on Map" style="width: 200px; height: auto;">
-    <p>Details on Map</p>
-  </div>
-
-</div>
+| ![Details on Map](screenshots/admin_details_on_map.jpg) |
+| ------------------------------------------------------ |
+| **Details on Map**                                     |
 
 
 ### Technologies and Libraries
