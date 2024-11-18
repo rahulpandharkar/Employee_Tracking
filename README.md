@@ -72,5 +72,5 @@ This application uses Firebase services for authentication and data storage. To 
 ## Final Step 
 
 1. Once all the prerequisites are sorted and you have everything in order to run the project, 
-do a ```flutter pub get```
+do a ```flutter run```
 in your console. 
