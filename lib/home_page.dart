@@ -47,24 +47,26 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: const Text('Home Page')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,  // Center align content
-          crossAxisAlignment: CrossAxisAlignment.center,  // Center align content
-          children: [
-            Text(_location, style: TextStyle(fontSize: 18)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _hasCheckedIn ? null : _getCurrentLocation,
-              child: const Text('Check In'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _hasCheckedIn ? _getCheckoutLocation : null,
-              child: const Text('Check Out'),
-            ),
-            SizedBox(height: 20),
-            Text(_statusMessage, style: TextStyle(fontSize: 16)),
-          ],
+        child: Center(  // Ensure the content is always centered
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,  // Center align content
+            crossAxisAlignment: CrossAxisAlignment.center,  // Center align content
+            children: [
+              Text(_location, style: TextStyle(fontSize: 18)),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _hasCheckedIn ? null : _getCurrentLocation,
+                child: const Text('Check In'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _hasCheckedIn ? _getCheckoutLocation : null,
+                child: const Text('Check Out'),
+              ),
+              SizedBox(height: 20),
+              Text(_statusMessage, style: TextStyle(fontSize: 16)),
+            ],
+          ),
         ),
       ),
     );

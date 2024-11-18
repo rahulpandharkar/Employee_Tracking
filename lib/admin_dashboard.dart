@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'maps.dart'; // Import the new maps.dart file
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -39,7 +40,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     showDialog(
       context: context,
       builder: (context) {
-        return FutureBuilder<List<Map<String, dynamic>>>(
+        return FutureBuilder<List<Map<String, dynamic>>>( 
           future: fetchHistory(email, historyType),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -118,49 +119,69 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (context, index) {
-                String email = users[index].id;
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 10),
-                  child: ListTile(
-                    title: Text(email),
-                    trailing: Icon(Icons.arrow_forward),
-                    onTap: () {
-                      // Show options for checkin or checkout history
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text('Select History'),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    showHistoryModal(context, email, 'checkinhistory');
-                                  },
-                                  child: Text('View Check-in History'),
-                                ),
-                                SizedBox(height: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    showHistoryModal(context, email, 'checkouthistory');
-                                  },
-                                  child: Text('View Check-out History'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+            child: Column(
+              children: [
+                // This is the "View Map" button that is outside of the list
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MapsScreen(), // Navigate to MapsScreen
+                      ),
+                    );
+                  },
+                  child: Text('View Map'),
+                ),
+                SizedBox(height: 20), // Add some space between button and list
+                // List of users
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: users.length,
+                    itemBuilder: (context, index) {
+                      String email = users[index].id;
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        child: ListTile(
+                          title: Text(email),
+                          trailing: Icon(Icons.arrow_forward),
+                          onTap: () {
+                            // Show options for checkin or checkout history
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Select History'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          showHistoryModal(context, email, 'checkinhistory');
+                                        },
+                                        child: Text('View Check-in History'),
+                                      ),
+                                      SizedBox(height: 10),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          showHistoryModal(context, email, 'checkouthistory');
+                                        },
+                                        child: Text('View Check-out History'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       );
                     },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           );
         },
