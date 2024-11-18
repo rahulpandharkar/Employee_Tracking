@@ -13,6 +13,10 @@ class FirestoreService {
 
     try {
       DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.email);
+
+      // Ensure the parent user document exists
+      await userDoc.set(<String, dynamic>{}, SetOptions(merge: true)); // Pass an empty Map<String, dynamic>
+
       String formattedTimestamp = DateFormat('yyyy-MM-dd-HH:mm').format(DateTime.now());
 
       await userDoc.collection('checkinhistory').doc(formattedTimestamp).set({
@@ -33,6 +37,10 @@ class FirestoreService {
 
     try {
       DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.email);
+
+      // Ensure the parent user document exists
+      await userDoc.set(<String, dynamic>{}, SetOptions(merge: true)); // Pass an empty Map<String, dynamic>
+
       String formattedTimestamp = DateFormat('yyyy-MM-dd-HH:mm').format(DateTime.now());
 
       await userDoc.collection('checkouthistory').doc(formattedTimestamp).set({

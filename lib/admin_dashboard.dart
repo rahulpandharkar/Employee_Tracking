@@ -1,98 +1,172 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AdminDashboard extends StatelessWidget {
+class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
-  // Function to fetch everything inside the user's document (including subcollections)
-  Future<void> fetchUserDataAndSubcollections(String email) async {
+  @override
+  _AdminDashboardState createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  // Function to fetch all document IDs in the 'users/' collection
+  Future<List<DocumentSnapshot>> fetchUserDocuments() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-
     try {
-      // Reference to the user's main document
-      final userDocRef = firestore.collection('users').doc(email);
-
-      // Fetch the user's main document (general data)
-      userDocRef.get().then((DocumentSnapshot userDoc) {
-        if (userDoc.exists) {
-          final userData = userDoc.data() as Map<String, dynamic>;
-          print('User Data: $userData');
-        } else {
-          print('No user found with that email.');
-        }
-      });
-
-      // Fetch the user's check-in history
-      final checkInHistoryRef = firestore
-          .collection('users')           // users collection
-          .doc(email)                    // user document (based on email)
-          .collection('checkinhistory');  // sub-collection 'checkinhistory'
-
-      final checkInSnapshot = await checkInHistoryRef.get();
-      if (checkInSnapshot.docs.isEmpty) {
-        print('No check-in history found for this user.');
-      } else {
-        checkInSnapshot.docs.forEach((doc) {
-          final checkInData = doc.data() as Map<String, dynamic>;
-          print('Check-in History Data: $checkInData');
-        });
-      }
-
-      // Manually fetching all other subcollections, if they exist
-      await _fetchSubcollections(userDocRef);
-      
+      final querySnapshot = await firestore.collection('users').get();
+      return querySnapshot.docs;
     } catch (e) {
-      print('Error fetching data: $e');
+      print('Error fetching user documents: $e');
+      return [];
     }
   }
 
-  // Manually fetch subcollections by checking known collections
-  Future<void> _fetchSubcollections(DocumentReference userDocRef) async {
+  // Function to fetch and display check-in or check-out history
+  Future<List<Map<String, dynamic>>> fetchHistory(String email, String historyType) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
-      // Known subcollection names to check
-      final subcollectionNames = ['checkinhistory', 'otherSubCollection']; // add more subcollections here
-
-      for (var collectionName in subcollectionNames) {
-        final subcollectionRef = userDocRef.collection(collectionName);
-        final subcollectionSnapshot = await subcollectionRef.get();
-
-        if (subcollectionSnapshot.docs.isEmpty) {
-          print('No documents found in subcollection $collectionName.');
-        } else {
-          subcollectionSnapshot.docs.forEach((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            print('Data from subcollection $collectionName: $data');
-          });
-        }
-      }
+      final historyRef = firestore.collection('users').doc(email).collection(historyType);
+      final historySnapshot = await historyRef.get();
+      return historySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
     } catch (e) {
-      print('Error fetching subcollections: $e');
+      print('Error fetching $historyType: $e');
+      return [];
     }
   }
 
+  // Show a modal with history details (Check-in/Check-out)
+  void showHistoryModal(BuildContext context, String email, String historyType) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return FutureBuilder<List<Map<String, dynamic>>>(
+          future: fetchHistory(email, historyType),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
+              return AlertDialog(
+                title: Text('No $historyType records found'),
+                content: Text('There are no $historyType records available for this user.'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('Close'),
+                  ),
+                ],
+              );
+            }
+
+            // History records data
+            List<Map<String, dynamic>> historyData = snapshot.data!;
+
+            return AlertDialog(
+              title: Text('$historyType History'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: historyData.map((data) {
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 5),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Action: ${data['action']}'),
+                            Text('Latitude: ${data['latitude']}'),
+                            Text('Longitude: ${data['longitude']}'),
+                            Text('Timestamp: ${data['timestamp'].toDate()}'),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Close'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // UI to show user data with clickable cards
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Admin Dashboard')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'ADMIN DASHBOARD',
-              style: TextStyle(fontSize: 24),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Example email to fetch all data for the user
-                fetchUserDataAndSubcollections('rahul@gmail.com');
+      body: FutureBuilder<List<DocumentSnapshot>>(
+        future: fetchUserDocuments(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
+            return Center(child: Text('No users found.'));
+          }
+
+          List<DocumentSnapshot> users = snapshot.data!;
+
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                String email = users[index].id;
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 10),
+                  child: ListTile(
+                    title: Text(email),
+                    trailing: Icon(Icons.arrow_forward),
+                    onTap: () {
+                      // Show options for checkin or checkout history
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Select History'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    showHistoryModal(context, email, 'checkinhistory');
+                                  },
+                                  child: Text('View Check-in History'),
+                                ),
+                                SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    showHistoryModal(context, email, 'checkouthistory');
+                                  },
+                                  child: Text('View Check-out History'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                );
               },
-              child: const Text('Fetch User Data and Subcollections'),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 }
+
+void main() => runApp(MaterialApp(home: AdminDashboard()));
