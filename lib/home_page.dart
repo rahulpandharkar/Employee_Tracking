@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // For Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';  // For Firebase Auth
 import 'location_service.dart';
 import 'firestore_service.dart';
 
@@ -13,12 +13,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String _location = "Press the button to check-in";
   String _statusMessage = "Status: Ready to check in";
-  String _currentStatus = "Current Status: Not Checked-In";
-  String _lastCheckedInTimestamp = ""; // Stores the timestamp of the last check-in
   bool _hasCheckedIn = false;
-  String _email = ''; // Placeholder email
-  String _profileImageUrl =
-      "https://www.example.com/default_profile_image.png"; // Default profile image URL
+  String _email = '';  // Placeholder email
+  String _profileImageUrl = "https://www.example.com/default_profile_image.png";  // Default profile image URL
 
   final LocationService _locationService = LocationService();
   final FirestoreService _firestoreService = FirestoreService();
@@ -26,42 +23,23 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _fetchUserInfo(); // Fetch user info when the page is initialized
-    _fetchCheckInStatus(); // Fetch the latest check-in status
+    _fetchUserInfo();  // Fetch user info when the page is initialized
   }
 
   // Fetch user email and profile picture from Firebase Authentication
   Future<void> _fetchUserInfo() async {
-    User? user = FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;  // Get the current authenticated user
 
     if (user != null) {
       setState(() {
-        _email = user.email ?? 'No email';
-        _profileImageUrl = user.photoURL ??
-            'https://www.example.com/default_profile_image.png';
+        _email = user.email ?? 'No email';  // Fetch email from Firebase Auth
+        _profileImageUrl = user.photoURL ?? 'https://www.example.com/default_profile_image.png';  // Fetch profile picture URL
       });
     } else {
       setState(() {
-        _email = 'User not logged in';
+        _email = 'User not logged in';  // Handle the case where the user is not logged in
       });
     }
-  }
-
-  // Fetch the latest check-in or check-out status from Firestore
-  Future<void> _fetchCheckInStatus() async {
-    String lastAction = await _firestoreService.getLastAction();
-    setState(() {
-      if (lastAction == 'checkin') {
-        _hasCheckedIn = true;
-        _statusMessage = "Status: Already checked in.";
-        _currentStatus = "Current Status: Checked-In";
-        _lastCheckedInTimestamp = DateTime.now().toString(); // Placeholder timestamp
-      } else {
-        _hasCheckedIn = false;
-        _statusMessage = "Status: Ready to check in.";
-        _currentStatus = "Current Status: Not Checked-In";
-      }
-    });
   }
 
   // Check-in logic
@@ -72,8 +50,6 @@ class _HomePageState extends State<HomePage> {
         _location = "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
         _statusMessage = "Status: Checked in!";
         _hasCheckedIn = true; // Enable checkout
-        _currentStatus = "Current Status: Checked-In";
-        _lastCheckedInTimestamp = DateTime.now().toString(); // Update last check-in timestamp
       });
       await _firestoreService.saveCheckIn(position);
     } else {
@@ -90,9 +66,7 @@ class _HomePageState extends State<HomePage> {
       await _firestoreService.saveCheckout(position);
       setState(() {
         _statusMessage = "Status: Checked out!";
-        _hasCheckedIn = false; // Disable checkout after check-out
-        _currentStatus = "Current Status: Not Checked-In";
-        _lastCheckedInTimestamp = ""; // Clear last check-in timestamp on checkout
+        _hasCheckedIn = false; // Disable checkout after check out
       });
     } else {
       setState(() {
@@ -107,10 +81,10 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(title: const Text('Home')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
+        child: Center(  // Ensure the content is always centered
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,  // Center align content
+            crossAxisAlignment: CrossAxisAlignment.center,  // Center align content
             children: [
               // Profile Card
               Card(
@@ -123,14 +97,14 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: [
                       CircleAvatar(
-                        radius: 50,
+                        radius: 50,  // Adjust size for profile image
                         backgroundImage: NetworkImage(_profileImageUrl),
-                        onBackgroundImageError: (_, __) => const Icon(Icons.error),
+                        onBackgroundImageError: (_, __) => Icon(Icons.error),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
                       Text(
-                        _email,
-                        style: const TextStyle(
+                        _email,  // Display user email (fetched from Firebase Auth)
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -139,27 +113,22 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
-              Text(_location, style: const TextStyle(fontSize: 18)),
-              const SizedBox(height: 20),
+              SizedBox(height: 30),
+              
+              // Location and Check-in/Check-out Section
+              Text(_location, style: TextStyle(fontSize: 18)),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _hasCheckedIn ? null : _getCurrentLocation,
                 child: const Text('Check In'),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _hasCheckedIn ? _getCheckoutLocation : null,
                 child: const Text('Check Out'),
               ),
-              const SizedBox(height: 20),
-              Text(_statusMessage, style: const TextStyle(fontSize: 16)),
-              const SizedBox(height: 20),
-              Text(_currentStatus, style: const TextStyle(fontSize: 16)),
-              if (_lastCheckedInTimestamp.isNotEmpty)
-                Text(
-                  "Last Check-In: $_lastCheckedInTimestamp",
-                  style: const TextStyle(fontSize: 16),
-                ),
+              SizedBox(height: 20),
+              Text(_statusMessage, style: TextStyle(fontSize: 16)),
             ],
           ),
         ),
