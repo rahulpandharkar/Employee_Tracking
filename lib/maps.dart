@@ -108,68 +108,60 @@ class _MapsScreenState extends State<MapsScreen> {
       for (var userDoc in usersSnapshot.docs) {
         final String userEmail = userDoc.id;
         
-        final checkinHistory = await userDoc.reference
-            .collection('checkinhistory')
+        // Query the 'timestamps' subcollection and order by timestamp
+        final timestampsSnapshot = await userDoc.reference
+            .collection('timestamps')
             .orderBy('timestamp', descending: true)
-            .limit(1)
+            .limit(1)  // Get the most recent timestamp
             .get();
 
-        final checkoutHistory = await userDoc.reference
-            .collection('checkouthistory')
-            .orderBy('timestamp', descending: true)
-            .limit(1)
-            .get();
-
-        final latestCheckinTime = checkinHistory.docs.isNotEmpty 
-            ? (checkinHistory.docs.first.data()['timestamp'] as Timestamp)
-            : null;
-        final latestCheckoutTime = checkoutHistory.docs.isNotEmpty 
-            ? (checkoutHistory.docs.first.data()['timestamp'] as Timestamp)
-            : null;
-
-        if (latestCheckinTime != null && (latestCheckoutTime == null || 
-            latestCheckinTime.compareTo(latestCheckoutTime) > 0)) {
+        if (timestampsSnapshot.docs.isNotEmpty) {
+          final timestampDoc = timestampsSnapshot.docs.first;
+          final timestampData = timestampDoc.data();
           
-          final checkinData = checkinHistory.docs.first.data();
-          final latitude = checkinData['latitude'] as double;
-          final longitude = checkinData['longitude'] as double;
-          final timestamp = latestCheckinTime.toDate();
+          // Check if the last action was a checkin
+          final action = timestampData['action'] as String;
+          if (action == 'checkin') {
+            final latitude = timestampData['latitude'] as double;
+            final longitude = timestampData['longitude'] as double;
+            final timestamp = (timestampData['timestamp'] as Timestamp).toDate();
 
-          markers.add(
-            Marker(
-              width: 120.0,
-              height: 60.0,
-              point: LatLng(latitude, longitude),
-              child: GestureDetector(
-                onTap: () => _showUserDetails(context, userEmail, timestamp),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.blue),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+            markers.add(
+              Marker(
+                width: 120.0,
+                height: 60.0,
+                point: LatLng(latitude, longitude),
+                child: GestureDetector(
+                  onTap: () => _showUserDetails(context, userEmail, timestamp),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.blue),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          userEmail,
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      child: Text(
-                        userEmail,
-                        style: const TextStyle(fontSize: 12),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const Icon(Icons.location_on, color: Colors.red, size: 30),
-                  ],
+                      const Icon(Icons.location_on, color: Colors.red, size: 30),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
+            );
+          }
         }
       }
 

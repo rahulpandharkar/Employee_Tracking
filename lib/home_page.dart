@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';  // For Firebase Auth
 import 'location_service.dart';
 import 'firestore_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _fetchUserInfo();  // Fetch user info when the page is initialized
+    _fetchLatestTimestamp();  // Fetch the latest timestamp on init
   }
 
   // Fetch user email and profile picture from Firebase Authentication
@@ -39,6 +41,38 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _email = 'User not logged in';  // Handle the case where the user is not logged in
       });
+    }
+  }
+
+  // Fetch the latest timestamp and set check-in/check-out status accordingly
+  Future<void> _fetchLatestTimestamp() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.email);
+
+      // Query to get the latest timestamp
+      QuerySnapshot snapshot = await userDoc.collection('timestamps').orderBy('timestamp', descending: true).limit(1).get();
+
+      if (snapshot.docs.isNotEmpty) {
+        String action = snapshot.docs.first['action'];
+
+        setState(() {
+          // Set check-in/check-out status based on the latest action
+          if (action == 'checkin') {
+            _hasCheckedIn = true;
+            _statusMessage = "Status: Checked in!";
+            _location = "You are already checked in.";
+          } else if (action == 'checkout') {
+            _hasCheckedIn = false;
+            _statusMessage = "Status: Checked out!";
+            _location = "You are checked out.";
+          }
+        });
+      }
+    } catch (e) {
+      print("Error fetching latest timestamp: $e");
     }
   }
 

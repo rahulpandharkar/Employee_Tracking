@@ -27,9 +27,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<List<Map<String, dynamic>>> fetchHistory(String email, String historyType) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
-      final historyRef = firestore.collection('users').doc(email).collection(historyType);
+      // Query the timestamps subcollection under the user's document
+      final historyRef = firestore
+          .collection('users') // Users collection
+          .doc(email) // Document of the specific user
+          .collection('timestamps') // Timestamps subcollection
+          .where('action', isEqualTo: historyType); // Filter by action: 'checkin' or 'checkout'
+
       final historySnapshot = await historyRef.get();
-      return historySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+      // Map the snapshot to a list of maps
+      return historySnapshot.docs.map((doc) {
+        return doc.data() as Map<String, dynamic>;
+      }).toList();
     } catch (e) {
       print('Error fetching $historyType: $e');
       return [];
@@ -181,7 +191,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ElevatedButton(
                                       onPressed: () {
                                         Navigator.pop(context);
-                                        showHistoryModal(context, email, 'checkinhistory');
+                                        showHistoryModal(context, email, 'checkin');
                                       },
                                       style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                                       child: Text('View Check-in History'),
@@ -190,7 +200,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ElevatedButton(
                                       onPressed: () {
                                         Navigator.pop(context);
-                                        showHistoryModal(context, email, 'checkouthistory');
+                                        showHistoryModal(context, email, 'checkout');
                                       },
                                       style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                                       child: Text('View Check-out History'),
