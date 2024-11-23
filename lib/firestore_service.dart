@@ -26,6 +26,7 @@ class FirestoreService {
         'latitude': position.latitude,
         'longitude': position.longitude,
         'action': action,
+        'notification_read': false,
       });
     } catch (e) {
       print("Error saving $action data: $e");

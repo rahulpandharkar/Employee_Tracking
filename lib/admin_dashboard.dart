@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shimmer/shimmer.dart'; // Add shimmer effect
 import 'maps.dart'; // Import the new maps.dart file
+import 'notifications.dart'; // Import the notifications.dart file
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -51,7 +52,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     showDialog(
       context: context,
       builder: (context) {
-        return FutureBuilder<List<Map<String, dynamic>>>(
+        return FutureBuilder<List<Map<String, dynamic>>>( // Use FutureBuilder to fetch the history
           future: fetchHistory(email, historyType),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -120,6 +121,49 @@ class _AdminDashboardState extends State<AdminDashboard> {
         title: const Text('Admin Dashboard'),
         backgroundColor: Colors.blueAccent,
         elevation: 0,
+        actions: [
+          // Bell icon with static count (0)
+          IconButton(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(Icons.notifications, size: 30),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 18,
+                      minHeight: 18,
+                    ),
+                    child: Text(
+                      '0',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NotificationsScreen(), // Navigate to Notifications screen
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<DocumentSnapshot>>(
         future: fetchUserDocuments(),
