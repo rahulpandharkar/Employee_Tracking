@@ -25,44 +25,40 @@ class _LoginRegisterState extends State<LoginRegister> {
   // Handle email/password sign-in or registration
   Future<void> _emailSignIn() async {
     try {
+      String enteredEmail = _emailController.text.trim();
+      
+      // Check if the entered email is "admin", and automatically append "@admin.com"
+      if (enteredEmail == "admin") {
+        enteredEmail = "admin@admin.com";
+      } else {
+        enteredEmail += "@gmail.com"; // You can change this to other domain if needed
+      }
+
       if (_isRegistering) {
         // Registration logic
-        if (_emailController.text.trim() == "admin") {
-          // Skip email validation for "admin" user
-          await _auth.createUserWithEmailAndPassword(
-            email: "admin@admin.com", // Set a dummy valid email
-            password: _passwordController.text.trim(),
-          );
-          _showSuccessDialog('Registration successful');
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        } else {
-          await _auth.createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
-          _showSuccessDialog('Registration successful');
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        }
+        await _auth.createUserWithEmailAndPassword(
+          email: enteredEmail,
+          password: _passwordController.text.trim(),
+        );
+        _showSuccessDialog('Registration successful');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
       } else {
         // Login logic
-        if (_emailController.text.trim() == "admin" &&
-            _passwordController.text.trim() == "admin") {
-          // Skip email validation for "admin"
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: enteredEmail,
+          password: _passwordController.text.trim(),
+        );
+
+        // Check if the user is admin after login
+        if (enteredEmail == "admin@admin.com") {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const AdminDashboard()),
           );
         } else {
-          UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
           _showSuccessDialog('Login successful');
           Navigator.pushReplacement(
             context,
