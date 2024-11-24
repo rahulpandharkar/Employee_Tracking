@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';  // For Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';
 import 'location_service.dart';
 import 'firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'login_register.dart'; // Add this import
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,8 +16,8 @@ class _HomePageState extends State<HomePage> {
   String _location = "Press the button to check-in";
   String _statusMessage = "Status: Ready to check in";
   bool _hasCheckedIn = false;
-  String _email = '';  // Placeholder email
-  String _profileImageUrl = "https://www.example.com/default_profile_image.png";  // Default profile image URL
+  String _email = '';
+  String _profileImageUrl = "https://www.example.com/default_profile_image.png";
 
   final LocationService _locationService = LocationService();
   final FirestoreService _firestoreService = FirestoreService();
@@ -24,42 +25,66 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _fetchUserInfo();  // Fetch user info when the page is initialized
-    _fetchLatestTimestamp();  // Fetch the latest timestamp on init
+    _fetchUserInfo();
+    _fetchLatestTimestamp();
   }
 
-  // Fetch user email and profile picture from Firebase Authentication
+  // Updated sign out function with explicit navigation
+  Future<void> _signOut() async {
+    try {
+      // If user is checked in, perform checkout before signing out
+      if (_hasCheckedIn) {
+        await _getCheckoutLocation();
+      }
+      
+      await FirebaseAuth.instance.signOut();
+      
+      // Use mounted check before navigation
+      if (!mounted) return;
+      
+      // Navigate to login screen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginRegister()),
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error signing out: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _fetchUserInfo() async {
-    User? user = FirebaseAuth.instance.currentUser;  // Get the current authenticated user
+    User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
       setState(() {
-        _email = user.email ?? 'No email';  // Fetch email from Firebase Auth
-        _profileImageUrl = user.photoURL ?? 'https://www.example.com/default_profile_image.png';  // Fetch profile picture URL
+        _email = user.email ?? 'No email';
+        _profileImageUrl = user.photoURL ?? 'https://www.example.com/default_profile_image.png';
       });
     } else {
       setState(() {
-        _email = 'User not logged in';  // Handle the case where the user is not logged in
+        _email = 'User not logged in';
       });
     }
   }
 
-  // Fetch the latest timestamp and set check-in/check-out status accordingly
   Future<void> _fetchLatestTimestamp() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     try {
       DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.email);
-
-      // Query to get the latest timestamp
       QuerySnapshot snapshot = await userDoc.collection('timestamps').orderBy('timestamp', descending: true).limit(1).get();
 
       if (snapshot.docs.isNotEmpty) {
         String action = snapshot.docs.first['action'];
 
         setState(() {
-          // Set check-in/check-out status based on the latest action
           if (action == 'checkin') {
             _hasCheckedIn = true;
             _statusMessage = "Status: Checked in!";
@@ -76,14 +101,13 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Check-in logic
   Future<void> _getCurrentLocation() async {
     var position = await _locationService.getCurrentLocation();
     if (position != null) {
       setState(() {
         _location = "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
         _statusMessage = "Status: Checked in!";
-        _hasCheckedIn = true; // Enable checkout
+        _hasCheckedIn = true;
       });
       await _firestoreService.saveCheckIn(position);
     } else {
@@ -93,14 +117,13 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Check-out logic
   Future<void> _getCheckoutLocation() async {
     var position = await _locationService.getCurrentLocation();
     if (position != null) {
       await _firestoreService.saveCheckout(position);
       setState(() {
         _statusMessage = "Status: Checked out!";
-        _hasCheckedIn = false; // Disable checkout after check out
+        _hasCheckedIn = false;
       });
     } else {
       setState(() {
@@ -112,15 +135,61 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(
+        title: const Text('Home'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.account_circle),
+            onSelected: (value) async {
+              if (value == 'signout') {
+                final bool? confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Sign Out'),
+                      content: const Text('Are you sure you want to sign out?'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('Cancel'),
+                          onPressed: () => Navigator.of(context).pop(false),
+                        ),
+                        TextButton(
+                          child: const Text('Sign Out'),
+                          onPressed: () => Navigator.of(context).pop(true),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                
+                if (confirm == true) {
+                  await _signOut();
+                }
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'signout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Sign Out'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(  // Ensure the content is always centered
+        child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,  // Center align content
-            crossAxisAlignment: CrossAxisAlignment.center,  // Center align content
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Profile Card
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -131,14 +200,14 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     children: [
                       CircleAvatar(
-                        radius: 50,  // Adjust size for profile image
+                        radius: 50,
                         backgroundImage: NetworkImage(_profileImageUrl),
-                        onBackgroundImageError: (_, __) => Icon(Icons.error),
+                        onBackgroundImageError: (_, __) => const Icon(Icons.error),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
-                        _email,  // Display user email (fetched from Firebase Auth)
-                        style: TextStyle(
+                        _email,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -147,22 +216,20 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              SizedBox(height: 30),
-              
-              // Location and Check-in/Check-out Section
-              Text(_location, style: TextStyle(fontSize: 18)),
-              SizedBox(height: 20),
+              const SizedBox(height: 30),
+              Text(_location, style: const TextStyle(fontSize: 18)),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _hasCheckedIn ? null : _getCurrentLocation,
                 child: const Text('Check In'),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _hasCheckedIn ? _getCheckoutLocation : null,
                 child: const Text('Check Out'),
               ),
-              SizedBox(height: 20),
-              Text(_statusMessage, style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 20),
+              Text(_statusMessage, style: const TextStyle(fontSize: 16)),
             ],
           ),
         ),

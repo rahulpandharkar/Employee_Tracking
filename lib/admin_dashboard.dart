@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shimmer/shimmer.dart'; // Add shimmer effect
-import 'maps.dart'; // Import the new maps.dart file
-import 'notifications.dart'; // Import the notifications.dart file
+import 'package:shimmer/shimmer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'maps.dart';
+import 'notifications.dart';
+import 'login_register.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -12,6 +14,35 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+  // Check if the logged-in user is the admin
+  Future<void> checkAdminAccess() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.email != 'admin@admin.com') {
+      // If not an admin, show dialog and redirect to login screen
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Access Denied'),
+            content: Text('You are not authorized to access this page. Redirecting to login screen.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginRegister()), // Redirect to LoginRegister screen
+                  );
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   // Function to fetch all document IDs in the 'users/' collection
   Future<List<DocumentSnapshot>> fetchUserDocuments() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -28,16 +59,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<List<Map<String, dynamic>>> fetchHistory(String email, String historyType) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
-      // Query the timestamps subcollection under the user's document
       final historyRef = firestore
-          .collection('users') // Users collection
-          .doc(email) // Document of the specific user
-          .collection('timestamps') // Timestamps subcollection
-          .where('action', isEqualTo: historyType); // Filter by action: 'checkin' or 'checkout'
+          .collection('users')
+          .doc(email)
+          .collection('timestamps')
+          .where('action', isEqualTo: historyType);
 
       final historySnapshot = await historyRef.get();
-
-      // Map the snapshot to a list of maps
       return historySnapshot.docs.map((doc) {
         return doc.data() as Map<String, dynamic>;
       }).toList();
@@ -52,7 +80,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     showDialog(
       context: context,
       builder: (context) {
-        return FutureBuilder<List<Map<String, dynamic>>>( // Use FutureBuilder to fetch the history
+        return FutureBuilder<List<Map<String, dynamic>>>( 
           future: fetchHistory(email, historyType),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -72,7 +100,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
               );
             }
 
-            // History records data
             List<Map<String, dynamic>> historyData = snapshot.data!;
 
             return AlertDialog(
@@ -113,7 +140,26 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  // Function to sign out the user
+  Future<void> signOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginRegister()), // Redirect to LoginRegister screen
+      );
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
+
   // UI to show user data with clickable cards
+  @override
+  void initState() {
+    super.initState();
+    checkAdminAccess(); // Check if the user is admin on dashboard load
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,8 +204,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NotificationsScreen(), // Navigate to Notifications screen
+                  builder: (context) => NotificationsScreen(),
                 ),
+              );
+            },
+          ),
+          // Sign-out icon
+          IconButton(
+            icon: Icon(Icons.exit_to_app, size: 30),
+            onPressed: () {
+              // Show confirmation dialog
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Sign Out'),
+                    content: Text('Do you really want to sign out?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                          signOut(context); // Sign out and redirect
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -203,7 +280,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MapsScreen(), // Navigate to MapsScreen
+                        builder: (context) => MapsScreen(),
                       ),
                     );
                   },
@@ -216,7 +293,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                SizedBox(height: 20), // Add space between button and list
+                SizedBox(height: 20),
                 Expanded(
                   child: ListView.builder(
                     itemCount: users.length,
@@ -237,17 +314,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                         Navigator.pop(context);
                                         showHistoryModal(context, email, 'checkin');
                                       },
-                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                                      child: Text('View Check-in History'),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                        backgroundColor: Colors.blueAccent,
+                                      ),
+                                      child: Text('Check-in History'),
                                     ),
-                                    SizedBox(height: 10),
                                     ElevatedButton(
                                       onPressed: () {
                                         Navigator.pop(context);
                                         showHistoryModal(context, email, 'checkout');
                                       },
-                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                      child: Text('View Check-out History'),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                        backgroundColor: Colors.redAccent,
+                                      ),
+                                      child: Text('Check-out History'),
                                     ),
                                   ],
                                 ),
@@ -256,16 +338,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           );
                         },
                         child: Card(
-                          margin: EdgeInsets.symmetric(vertical: 10),
+                          margin: EdgeInsets.symmetric(vertical: 5),
                           elevation: 5,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              child: Icon(Icons.person),
-                              backgroundColor: Colors.blueAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                              title: Text(email, style: TextStyle(fontWeight: FontWeight.bold)),
+                              subtitle: Text('User ID: ${users[index].id}'),
                             ),
-                            title: Text(email),
-                            trailing: Icon(Icons.arrow_forward_ios),
                           ),
                         ),
                       );
@@ -280,5 +363,3 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 }
-
-void main() => runApp(MaterialApp(home: AdminDashboard()));
