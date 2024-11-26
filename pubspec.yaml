@@ -45,6 +45,7 @@ dependencies:
   location: ^7.0.1
   flutter_local_notifications: ^18.0.1
   shimmer: ^3.0.0
+  geocoding: ^3.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
