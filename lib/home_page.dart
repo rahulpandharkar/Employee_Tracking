@@ -32,10 +32,10 @@ class _HomePageState extends State<HomePage> {
   // Updated sign out function with explicit navigation
   Future<void> _signOut() async {
     try {
-      // If user is checked in, perform checkout before signing out
-      if (_hasCheckedIn) {
-        await _getCheckoutLocation();
-      }
+      // // If user is checked in, perform checkout before signing out
+      // if (_hasCheckedIn) {
+      //   await _getCheckoutLocation();
+      // }
       
       await FirebaseAuth.instance.signOut();
       
