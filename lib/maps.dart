@@ -206,6 +206,7 @@ class _MapsScreenState extends State<MapsScreen> {
                       child: FlutterMap(
                         mapController: _mapController,
                         options: const MapOptions(
+                          initialCenter: LatLng(19.0760, 72.8777),
                           initialZoom: 15,
                           minZoom: 3,
                           maxZoom: 18,
@@ -216,19 +217,6 @@ class _MapsScreenState extends State<MapsScreen> {
                             userAgentPackageName: 'com.example.app',
                           ),
                           MarkerLayer(markers: _markers),
-                          RichAttributionWidget(
-                            attributions: [
-                              TextSourceAttribution(
-                                'OpenStreetMap contributors',
-                                onTap: () async {
-                                  const url = 'https://openstreetmap.org/copyright';
-                                  if (await canLaunchUrl(Uri.parse(url))) {
-                                    await launchUrl(Uri.parse(url));
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),

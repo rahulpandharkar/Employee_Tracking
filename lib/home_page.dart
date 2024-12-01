@@ -4,6 +4,7 @@ import 'location_service.dart';
 import 'firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_register.dart'; // Add this import
+import 'package:geocoding/geocoding.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -36,12 +37,12 @@ class _HomePageState extends State<HomePage> {
       // if (_hasCheckedIn) {
       //   await _getCheckoutLocation();
       // }
-      
+
       await FirebaseAuth.instance.signOut();
-      
+
       // Use mounted check before navigation
       if (!mounted) return;
-      
+
       // Navigate to login screen and remove all previous routes
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const LoginRegister()),
@@ -64,7 +65,8 @@ class _HomePageState extends State<HomePage> {
     if (user != null) {
       setState(() {
         _email = user.email ?? 'No email';
-        _profileImageUrl = user.photoURL ?? 'https://www.example.com/default_profile_image.png';
+        _profileImageUrl = user.photoURL ??
+            'https://www.example.com/default_profile_image.png';
       });
     } else {
       setState(() {
@@ -78,8 +80,13 @@ class _HomePageState extends State<HomePage> {
     if (user == null) return;
 
     try {
-      DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.email);
-      QuerySnapshot snapshot = await userDoc.collection('timestamps').orderBy('timestamp', descending: true).limit(1).get();
+      DocumentReference userDoc =
+          FirebaseFirestore.instance.collection('users').doc(user.email);
+      QuerySnapshot snapshot = await userDoc
+          .collection('timestamps')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
 
       if (snapshot.docs.isNotEmpty) {
         String action = snapshot.docs.first['action'];
@@ -104,12 +111,32 @@ class _HomePageState extends State<HomePage> {
   Future<void> _getCurrentLocation() async {
     var position = await _locationService.getCurrentLocation();
     if (position != null) {
-      setState(() {
-        _location = "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
-        _statusMessage = "Status: Checked in!";
-        _hasCheckedIn = true;
-      });
-      await _firestoreService.saveCheckIn(position);
+      try {
+        // Perform reverse geocoding
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks.first;
+          setState(() {
+            _location =
+                "${place.street}, ${place.subLocality}, ${place.locality}, "
+                "${place.administrativeArea}, ${place.country}";
+            _statusMessage = "Status: Checked in!";
+            _hasCheckedIn = true;
+          });
+        }
+        await _firestoreService
+            .saveCheckIn(position); // Save original coordinates
+      } catch (e) {
+        setState(() {
+          _location = "Error fetching address. Latitude: ${position.latitude}, "
+              "Longitude: ${position.longitude}";
+          _statusMessage = "Status: Failed to get address. Please try again.";
+        });
+      }
     } else {
       setState(() {
         _statusMessage = "Status: Failed to get location. Please try again.";
@@ -161,7 +188,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 );
-                
+
                 if (confirm == true) {
                   await _signOut();
                 }
@@ -202,7 +229,8 @@ class _HomePageState extends State<HomePage> {
                       CircleAvatar(
                         radius: 50,
                         backgroundImage: NetworkImage(_profileImageUrl),
-                        onBackgroundImageError: (_, __) => const Icon(Icons.error),
+                        onBackgroundImageError: (_, __) =>
+                            const Icon(Icons.error),
                       ),
                       const SizedBox(height: 10),
                       Text(
