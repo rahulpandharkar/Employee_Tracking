@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'location_service.dart';
 import 'firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'login_register.dart'; // Add this import
+import 'login_register.dart';
 import 'package:geocoding/geocoding.dart';
 
 class HomePage extends StatefulWidget {
@@ -30,20 +30,10 @@ class _HomePageState extends State<HomePage> {
     _fetchLatestTimestamp();
   }
 
-  // Updated sign out function with explicit navigation
   Future<void> _signOut() async {
     try {
-      // // If user is checked in, perform checkout before signing out
-      // if (_hasCheckedIn) {
-      //   await _getCheckoutLocation();
-      // }
-
       await FirebaseAuth.instance.signOut();
-
-      // Use mounted check before navigation
       if (!mounted) return;
-
-      // Navigate to login screen and remove all previous routes
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const LoginRegister()),
         (Route<dynamic> route) => false,
@@ -61,7 +51,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _fetchUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser;
-
     if (user != null) {
       setState(() {
         _email = user.email ?? 'No email';
@@ -112,7 +101,6 @@ class _HomePageState extends State<HomePage> {
     var position = await _locationService.getCurrentLocation();
     if (position != null) {
       try {
-        // Perform reverse geocoding
         List<Placemark> placemarks = await placemarkFromCoordinates(
           position.latitude,
           position.longitude,
@@ -128,8 +116,7 @@ class _HomePageState extends State<HomePage> {
             _hasCheckedIn = true;
           });
         }
-        await _firestoreService
-            .saveCheckIn(position); // Save original coordinates
+        await _firestoreService.saveCheckIn(position);
       } catch (e) {
         setState(() {
           _location = "Error fetching address. Latitude: ${position.latitude}, "
@@ -207,59 +194,80 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          const SizedBox(width: 8),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(_profileImageUrl),
-                        onBackgroundImageError: (_, __) =>
-                            const Icon(Icons.error),
+        child: Column(
+          children: [
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 5,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: NetworkImage(_profileImageUrl),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      _email,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _email,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _location,
+                            style: const TextStyle(fontSize: 16),
+                          ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _hasCheckedIn
+                          ? _getCheckoutLocation
+                          : _getCurrentLocation,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 24),
                       ),
-                    ],
-                  ),
+                      child: Text(_hasCheckedIn ? 'Check Out' : 'Check In'),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 30),
-              Text(_location, style: const TextStyle(fontSize: 18)),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _hasCheckedIn ? null : _getCurrentLocation,
-                child: const Text('Check In'),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _hasCheckedIn ? _getCheckoutLocation : null,
-                child: const Text('Check Out'),
-              ),
-              const SizedBox(height: 20),
-              Text(_statusMessage, style: const TextStyle(fontSize: 16)),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _statusMessage,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
         ),
       ),
     );
