@@ -115,7 +115,7 @@ class _LoginRegisterState extends State<LoginRegister> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login/Register'),
+        title: const Text('Welcome!'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
