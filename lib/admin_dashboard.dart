@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'maps.dart';
 import 'notifications.dart';
 import 'login_register.dart';
-import 'admin_geofencing.dart'; // Import the geofencing screen
 
 
 class AdminDashboard extends StatefulWidget {
@@ -193,29 +192,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
         title: const Text('Admin Dashboard'),
         backgroundColor: Colors.blueAccent,
         actions: [
-          // Geo-fencing Icon
-          IconButton(
-          icon: Icon(Icons.location_on, size: 30),
-          onPressed: () {
-          Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AdminGeofencing()),
-          );
-          },
-          ),
-          // Notification Icon
+
           Stack(
             alignment: Alignment.center,
             children: [
-              IconButton(
-              icon: Icon(Icons.location_on, size: 30),
-              onPressed: () {
-              Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AdminGeofencing()),
-              );
-              },
-              ),
               IconButton(
                 icon: Icon(Icons.notifications, size: 30),
                 onPressed: () {

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:local_auth/local_auth.dart';  // Import local_auth
 import 'home_page.dart'; // Import the HomePage widget
 import 'admin_dashboard.dart'; // Import AdminDashboard widget
 
@@ -14,9 +12,6 @@ class LoginRegister extends StatefulWidget {
 
 class _LoginRegisterState extends State<LoginRegister> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final LocalAuthentication _localAuth = LocalAuthentication();  // Create a LocalAuthentication instance
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -68,52 +63,6 @@ class _LoginRegisterState extends State<LoginRegister> {
       }
     } catch (e) {
       _showErrorDialog('Failed: ' + e.toString());
-    }
-  }
-
-  // Handle Google Sign-In
-  Future<void> _googleSignInMethod() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser != null) {
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        final OAuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-        await _auth.signInWithCredential(credential);
-        _showSuccessDialog('Google Sign-In successful');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
-      }
-    } catch (e) {
-      _showErrorDialog('Google Sign-In failed: ' + e.toString());
-    }
-  }
-
-  // Fingerprint authentication
-  Future<void> _authenticateWithFingerprint() async {
-    try {
-      bool isAuthenticated = await _localAuth.authenticate(
-        localizedReason: 'Please authenticate to login',
-        options: const AuthenticationOptions(
-          useErrorDialogs: true, // Use error dialogs if authentication fails
-          stickyAuth: true, // Keep authentication active until completed
-        ),
-      );
-      if (isAuthenticated) {
-        _showSuccessDialog('Fingerprint authentication successful');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
-      } else {
-        _showErrorDialog('Authentication failed');
-      }
-    } catch (e) {
-      _showErrorDialog('Fingerprint authentication failed: ' + e.toString());
     }
   }
 
@@ -192,17 +141,6 @@ class _LoginRegisterState extends State<LoginRegister> {
               child: Text(_isRegistering
                   ? 'Already have an account? Login'
                   : 'Don’t have an account? Register'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _googleSignInMethod,
-              icon: const Icon(Icons.account_circle), // Simple Google icon
-              label: const Text('Sign in with Google'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _authenticateWithFingerprint,
-              child: const Text('Login with Fingerprint'),
             ),
           ],
         ),
