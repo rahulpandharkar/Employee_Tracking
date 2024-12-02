@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'maps.dart';
 import 'notifications.dart';
 import 'login_register.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart'; 
 
 
 class AdminDashboard extends StatefulWidget {
@@ -19,6 +22,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   List<DocumentSnapshot> _users = [];
   bool _isLoading = true;
   String _errorMessage = '';
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   @override
   void initState() {
@@ -33,6 +37,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
       
       // Fetch users
       await _fetchUserDocuments();
+
+      //Update Device Token
+      await _checkAndUpdateDeviceToken();
       
       // Start listening for notification count
       _startNotificationCountListener();
@@ -51,6 +58,71 @@ class _AdminDashboardState extends State<AdminDashboard> {
       throw 'Unauthorized Access';
     }
   }
+
+Future<void> _checkAndUpdateDeviceToken() async {
+  try {
+    // Step 1: Get the device token
+    String? deviceToken = await FirebaseMessaging.instance.getToken();
+    
+    if (deviceToken == null) {
+      print("Device token is null.");
+      return;
+    }
+
+    print("Device Token: $deviceToken");
+
+    // Step 2: Reference to the Firestore collection path
+    final deviceTokensRef = FirebaseFirestore.instance
+        .collection('admin') // The root collection
+        .doc('device-tokens'); // The document for device tokens
+
+    // Check if the 'device-tokens' document exists
+    DocumentSnapshot deviceTokensDoc = await deviceTokensRef.get();
+
+    // If it doesn't exist, create it
+    if (!deviceTokensDoc.exists) {
+      await deviceTokensRef.set({});
+      print("Device tokens document created.");
+    }
+
+    // Now access the 'timestamps' subcollection
+    final timestampsRef = deviceTokensRef.collection('timestamps');
+
+    // Step 3: Check if the token already exists in the 'timestamps' collection
+    final querySnapshot = await timestampsRef.get();
+
+    bool tokenExists = false;
+    
+    // Iterate through all existing tokens to check for a match
+    for (var doc in querySnapshot.docs) {
+      if (doc.data()['token-value'] == deviceToken) {
+        tokenExists = true;
+        break;
+      }
+    }
+
+    // Step 4: If token doesn't exist, create a new document using current timestamp
+    if (!tokenExists) {
+      // Get current timestamp as document name (DateTime formatted as string)
+      String timestamp = DateFormat('yyyy-dd-MM HH:mm:ss').format(DateTime.now());
+      
+      // Save token and timestamp under the collection named 'timestamps'
+      await timestampsRef
+          .doc(timestamp) // Use the timestamp as the document name
+          .set({
+            'token-value': deviceToken,
+            'timestamp': Timestamp.now(),
+          });
+
+      print("Device token saved successfully.");
+    } else {
+      print("Device token already exists in the collection.");
+    }
+
+  } catch (e) {
+    print("Error: $e");
+  }
+}
 
   Future<void> _fetchUserDocuments() async {
     try {
