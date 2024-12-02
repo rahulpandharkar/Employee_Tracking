@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'location_setting_monitor.dart'; // Import the LocationMonitor
 import 'login_register.dart';
 import 'home_page.dart';
 import 'admin_dashboard.dart'; // Make sure to create this file
+import 'location_setting_monitor.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const MyApp());
+  await Permission.locationWhenInUse.request(); 
+  await Permission.locationAlways.request(); 
+  await Permission.location.request(); 
+  await Permission.notification.request();
 }
 
 class MyApp extends StatelessWidget {
@@ -37,7 +42,7 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(      // Authentication logic
+    return StreamBuilder<User?>(
       stream: _auth.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

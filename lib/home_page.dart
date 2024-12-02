@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'location_service.dart';
-import 'firestore_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firestore_service.dart';
+import 'location_service.dart';
 import 'login_register.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:flutter/foundation.dart'; 
+import 'package:intl/intl.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,7 +32,62 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _fetchUserInfo();
     _fetchLatestTimestamp();
+    _initializeFCM(); 
   }
+
+   Future<void> _initializeFCM() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    // Get the FCM token
+    String? token = await messaging.getToken();
+    print('FCM Token: $token');
+
+    if (token != null) {
+      await _saveDeviceToken(token); // Save the token to Firestore
+    }
+  }
+
+  Future<void> _saveDeviceToken(String token) async {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? user = _auth.currentUser;
+  if (user == null) return;
+
+  try {
+    // Reference to the user document
+    DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.email);
+
+    // Get the current timestamp in the format 'yyyy-MM-dd HH:mm:ss'
+    String timestamp = DateFormat('yyyy-dd-MM HH:mm:ss').format(DateTime.now());
+
+    // Reference to the device-tokens subcollection
+    CollectionReference deviceTokensRef = userDoc.collection('device-tokens');
+
+    // Check if the token already exists in the device-tokens subcollection
+    QuerySnapshot tokenSnapshot = await deviceTokensRef.where('token-value', isEqualTo: token).get();
+
+    // If the token already exists, no need to add it again
+    if (tokenSnapshot.docs.isNotEmpty) {
+      print("Token already exists, not saving again.");
+      return;
+    }
+
+    // Determine the platform (Android/iOS)
+    String platform = defaultTargetPlatform == TargetPlatform.iOS ? "iOS" : "Android";
+
+    // Save the new token under the timestamp document
+    await deviceTokensRef.doc(timestamp).set({
+      'token-value': token,
+      'platform': platform,
+      'timestamp': timestamp,
+    });
+
+    print("Token saved successfully");
+
+  } catch (e) {
+    print("Error saving device token: $e");
+  }
+}
+
 
   Future<void> _signOut() async {
     try {
