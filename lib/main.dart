@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:googleapis/servicecontrol/v1.dart' as servicecontrol;  
 import 'dart:convert'; 
+import 'package:flutter/services.dart' show rootBundle;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,27 +25,31 @@ void main() async {
 
 //Function to Get Notification Access Token
 Future<String> getServerToken() async {
-final serviceAccountJson = {
-  //Copy the Json Service File Here
-}; 
+  // Read the JSON file securely
+  final jsonString = await rootBundle.loadString('assets/fcm_access_token/service_token.json');
+  final serviceAccountJson = jsonDecode(jsonString);
 
-List<String> scopes = [
-  "https://www.googleapis.com/auth/firebase.messaging"
-];
+  List<String> scopes = [
+    "https://www.googleapis.com/auth/firebase.messaging"
+  ];
 
-http.Client client = await auth.clientViaServiceAccount(
-  auth.ServiceAccountCredentials.fromJson(serviceAccountJson), 
-  scopes, 
-);
+  // Create an HTTP client
+  http.Client client = await auth.clientViaServiceAccount(
+    auth.ServiceAccountCredentials.fromJson(serviceAccountJson),
+    scopes,
+  );
 
+  // Obtain access credentials
   auth.AccessCredentials credentials = await auth.obtainAccessCredentialsViaServiceAccount(
-  auth.ServiceAccountCredentials.fromJson(serviceAccountJson),
-  scopes, 
-  client 
-);   
+    auth.ServiceAccountCredentials.fromJson(serviceAccountJson),
+    scopes,
+    client,
+  );
 
-client.close(); 
-return credentials.accessToken.data;  
+  client.close();
+
+  // Return the access token
+  return credentials.accessToken.data;
 }
 
 //Function to send Notification
