@@ -27,6 +27,14 @@ class _LocationMonitorState extends State<LocationMonitor> with WidgetsBindingOb
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _monitorLocation();
+
+    // Listen for location changes continuously.
+    _location.onLocationChanged.listen((event) async {
+      bool serviceEnabled = await _isLocationEnabled();
+      if (!serviceEnabled && !_dialogShown) {
+        _showLocationDialog();
+      }
+    });
   }
 
   @override

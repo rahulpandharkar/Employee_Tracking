@@ -264,7 +264,15 @@ Future<void> _checkAndUpdateDeviceToken() async {
         title: const Text('Admin Dashboard'),
         backgroundColor: Colors.blueAccent,
         actions: [
-
+             IconButton(
+            icon: const Icon(Icons.refresh, size: 30),
+            onPressed: () {
+            setState(() {
+              _isLoading = true; // Show loading while fetching
+            });
+            _initializeDashboard(); // Fetch the data again
+          },
+          ),
           Stack(
             alignment: Alignment.center,
             children: [

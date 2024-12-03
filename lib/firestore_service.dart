@@ -7,6 +7,7 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:googleapis/servicecontrol/v1.dart' as servicecontrol;  
 import 'dart:convert'; 
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:geocoding/geocoding.dart'; 
 
 class FirestoreService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -38,37 +39,69 @@ class FirestoreService {
   return credentials.accessToken.data;
   }
 
-  Future<void> sendNotification(String email, String location, String timestamp) async {
-    print("**********************************************************SEND NOTIFICATION CALLED****************************************************"); 
-    var deviceToken = "e4AmFTEASL6yid_ha__lqd:APA91bE0NttTwBV6expXSRwUWAxHbhPZcxQxqT6lEYa5T9YyPQ6w6h26eWnuKLi85xFs4ujTaVhKuCCcXqD1P7a4I9S-Hreqd0yIU2d1jynrJI5LVA5LQIM";
-    final String serverKey = await getServerToken();
-    String endpoint = "https://fcm.googleapis.com/v1/projects/employee-app-1fd50/messages:send";
+    Future<void> sendNotification(String email, String action, double latitude, double longitude, DateTime timestamp) async {
+  print("**********************************************************SEND NOTIFICATION CALLED****************************************************"); 
+  final String serverKey = await getServerToken();
+  String endpoint = "https://fcm.googleapis.com/v1/projects/employee-app-1fd50/messages:send";
 
-    final Map<String, dynamic> message = {
-      'message': {
-        'token': deviceToken,
-        'notification': {
-          'title': "Check-in Notification",
-          'body': "$email checked in at $location on $timestamp!",
-        },
-      },
-    };
-
-    final http.Response response = await http.post(
-      Uri.parse(endpoint),
-      headers: <String, String>{
-        'Content-Type': "application/json",
-        'Authorization': 'Bearer $serverKey',
-      },
-      body: jsonEncode(message),
-    );
-
-    if (response.statusCode == 200) {
-      print("Notification sent successfully");
-    } else {
-      print("Failed to send notification: ${response.body}");
+  // Reverse geocoding to get location details
+  String location = "Unknown Location";
+  try {
+    List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks.first;
+      location = "${place.street}, ${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
     }
+  } catch (e) {
+    print("Error during reverse geocoding: $e");
   }
+
+  // Format the timestamp
+  String formattedTimestamp = DateFormat('dd MMM yyyy, HH:mm:ss').format(timestamp);
+
+  // Fetch all device tokens from Firestore
+  try {
+    CollectionReference deviceTokensCollection = FirebaseFirestore.instance.collection('/admin/device-tokens/timestamps');
+    QuerySnapshot snapshot = await deviceTokensCollection.get();
+
+    if (snapshot.docs.isEmpty) {
+      print("No device tokens found.");
+      return;
+    }
+
+    for (QueryDocumentSnapshot doc in snapshot.docs) {
+      var deviceToken = doc.get('token-value');
+
+      final Map<String, dynamic> message = {
+        'message': {
+          'token': deviceToken,
+          'notification': {
+            'title': "$action Notification",
+            'body': "$email $action at $location on $formattedTimestamp!",
+          },
+        },
+      };
+
+      final http.Response response = await http.post(
+        Uri.parse(endpoint),
+        headers: <String, String>{
+          'Content-Type': "application/json",
+          'Authorization': 'Bearer $serverKey',
+        },
+        body: jsonEncode(message),
+      );
+
+      if (response.statusCode == 200) {
+        print("Notification sent successfully to token: $deviceToken");
+      } else {
+        print("Failed to send notification to token $deviceToken: ${response.body}");
+      }
+    }
+  } catch (e) {
+    print("Error fetching device tokens: $e");
+  }
+}
+
 
   // Generic function to save data (check-in or check-out)
   Future<void> saveData(Position position, String action) async {
@@ -92,8 +125,17 @@ class FirestoreService {
         'action': action,
         'notification_read': false,
       });
-      sendNotification(user.email!, "location", DateTime.now().toString());
-    } catch (e) {
+      var notification_action = ""; 
+      if(action=="checkin")
+      {
+        notification_action = "Checked In"; 
+      }
+      else 
+      {
+        notification_action = "Checked Out";
+      }
+      sendNotification(user.email!, notification_action, position.latitude, position.longitude, DateTime.now());
+    } catch (e) { 
       print("Error saving $action data: $e");
     }
   }

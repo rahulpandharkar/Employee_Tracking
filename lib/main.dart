@@ -18,7 +18,6 @@ void main() async {
   runApp(const MyApp());
   await Permission.locationWhenInUse.request(); 
   await Permission.locationAlways.request(); 
-  await Permission.location.request(); 
   await Permission.notification.request();
   // await sendNotification(); 
 }
