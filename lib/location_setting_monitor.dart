@@ -81,7 +81,13 @@ class _LocationMonitorState extends State<LocationMonitor> with WidgetsBindingOb
                   _showLocationDialog(); // Show the dialog again if still disabled
                 }
               },
-              child: const Text('Try Again'),
+              child: const Text(
+                'Try Again',
+                style: TextStyle(
+                  color: Color(0xFFE0AA3E), // Gold hex color
+                  fontWeight: FontWeight.bold, // Optional: Bold text
+                ),
+              ),
             ),
           ],
         );

@@ -113,18 +113,42 @@ class MyApp extends StatelessWidget {
     theme: ThemeData(
       primarySwatch: Colors.blue,
       brightness: Brightness.light,
+      appBarTheme: AppBarTheme(
+        backgroundColor: const Color(0xFFE0AA3E), // Background color
+        iconTheme: const IconThemeData(color: Colors.black), // Black icons
+        titleTextStyle: const TextStyle(
+          color: Colors.black, // Black text color
+          fontFamily: 'Lora', // Replace with your premium font name
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: Color(0xFFE0AA3E), // Gold hex color for buffering icons
+      ),
     ),
     darkTheme: ThemeData(
       primarySwatch: Colors.blue,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: Colors.grey[900],
       appBarTheme: AppBarTheme(
-        backgroundColor: const Color.fromARGB(255, 144, 29, 167),
-        elevation: 0,
+        backgroundColor: const Color(0xFFE0AA3E), // Background color
+        iconTheme: const IconThemeData(color: Colors.black), // Black icons
+        titleTextStyle: const TextStyle(
+          color: Colors.black, // Black text color
+          fontFamily: 'Lora', // Replace with your premium font name
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: Color(0xFFE0AA3E), // Gold hex color for buffering icons
       ),
       textTheme: TextTheme(
-        bodyLarge: TextStyle(color: Colors.white70),
-        bodyMedium: TextStyle(color: Colors.white70),
+        titleLarge: const TextStyle(color: Color(0xFFE0AA3E)),
+        bodyLarge: const TextStyle(color: Color(0xFFE0AA3E)),
+        bodyMedium: const TextStyle(color: Color(0xFFE0AA3E)),
+        bodySmall: const TextStyle(color: Color(0xFFE0AA3E)),
       ),
     ),
     themeMode: ThemeMode.system,
@@ -134,7 +158,6 @@ class MyApp extends StatelessWidget {
   );
 }
 }
-
 class AuthWrapper extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   static const String adminEmail = 'admin@admin.com';

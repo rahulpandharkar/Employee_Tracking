@@ -209,52 +209,64 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.account_circle),
-            onSelected: (value) async {
-              if (value == 'signout') {
-                final bool? confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Sign Out'),
-                      content: const Text('Are you sure you want to sign out?'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('Cancel'),
-                          onPressed: () => Navigator.of(context).pop(false),
-                        ),
-                        TextButton(
-                          child: const Text('Sign Out'),
-                          onPressed: () => Navigator.of(context).pop(true),
-                        ),
-                      ],
-                    );
-                  },
-                );
-
-                if (confirm == true) {
-                  await _signOut();
-                }
-              }
+  title: const Text(
+    'Home',
+    style: TextStyle(color: Colors.black), // Change title text color to black
+  ),
+  iconTheme: IconThemeData(
+    color: Colors.black, // Change all icons in the app bar to black
+  ),
+  actions: [
+    PopupMenuButton<String>(
+      icon: const Icon(
+        Icons.account_circle,
+        color: Colors.black, // Change the icon color to black
+      ),
+      onSelected: (value) async {
+        if (value == 'signout') {
+          final bool? confirm = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Sign Out', style: TextStyle(color: Colors.white)), // Change text color in alert to black
+                content: const Text('Are you sure you want to sign out?', style: TextStyle(color: Colors.white)), // Change content text color to black
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Cancel', style: TextStyle(color: Colors.white)), // Change button text color to black
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                  TextButton(
+                    child: const Text('Sign Out', style: TextStyle(color: Colors.white)), // Change button text color to black
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ],
+              );
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'signout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout, color: Color.fromARGB(255, 255, 255, 255)),
-                    SizedBox(width: 8),
-                    Text('Sign Out'),
-                  ],
-                ),
+          );
+
+          if (confirm == true) {
+            await _signOut();
+          }
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'signout',
+          child: Row(
+            children: [
+              Icon(
+                Icons.logout,
+                color: Colors.white, // Change the logout icon color to black
               ),
+              SizedBox(width: 8),
+              Text('Sign Out', style: TextStyle(color: Colors.white)), // Change text color to black
             ],
           ),
-        ],
-      ),
+        ),
+      ],
+    ),
+  ],
+),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -308,15 +320,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: _hasCheckedIn
-                          ? _getCheckoutLocation
-                          : _getCurrentLocation,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 24),
-                      ),
-                      child: Text(_hasCheckedIn ? 'Check Out' : 'Check In'),
-                    ),
+  onPressed: _hasCheckedIn ? _getCheckoutLocation : _getCurrentLocation,
+  style: ElevatedButton.styleFrom(
+    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+    backgroundColor: Color(0xFFE0AA3E), // Set the background color to your desired HEX (replace with your HEX value)
+    foregroundColor: Colors.black, // Set the text color to white
+  ),
+  child: Text(_hasCheckedIn ? 'Check Out' : 'Check In'),
+)
+
                   ],
                 ),
               ),

@@ -74,11 +74,21 @@ class _LoginRegisterState extends State<LoginRegister> {
         context: context,
         builder: (BuildContext context) => AlertDialog(
           title: const Text('Success'),
-          content: Text(message),
+          content: Text(
+            message,
+            style:
+                const TextStyle(color: Colors.white), // Set text color to white
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: const Text(
+                'Ok',
+                style: TextStyle(
+                  color: Colors.white, // Gold hex color
+                  fontWeight: FontWeight.bold, // Optional: Bold text
+                ),
+              ),
             ),
           ],
         ),
@@ -116,51 +126,110 @@ class _LoginRegisterState extends State<LoginRegister> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Welcome!'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Align(
-  alignment: Alignment.topCenter, // Aligns the box to the top center
-  child: ClipRRect(
-    borderRadius: BorderRadius.circular(20), // Adjust the curvature as needed
-    child: Container(
-      height: 150, // Height of the rectangle
-      width: 200, // Width of the rectangle
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/icon/icon.png'),
-          fit: BoxFit.cover, // Ensures the image covers the rectangle
+        title: const Text(
+          'Welcome to Chamfers n Fillets!',
+          style: TextStyle(color: Colors.black), // Set the text color to black
         ),
       ),
-    ),
-  ),
-),
-
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
-            ),
-            const SizedBox(height: 60),
-            ElevatedButton(
-              onPressed: _emailSignIn,
-              child: Text(_isRegistering ? 'Register' : 'Login'),
-            ),
-            TextButton(
-              onPressed: _toggleForm,
-              child: Text(_isRegistering
-                  ? 'Already have an account? Login'
-                  : 'Don’t have an account? Register'),
-            ),
-          ],
+      body: Container(
+        color: const Color.fromARGB(
+            255, 0, 0, 0), // Set your desired background color here
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Align(
+                alignment:
+                    Alignment.topCenter, // Aligns the box to the top center
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                      20), // Adjust the curvature as needed
+                  child: Container(
+                    height: 150, // Height of the rectangle
+                    width: 200, // Width of the rectangle
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/icon/icon.png'),
+                        fit: BoxFit
+                            .cover, // Ensures the image covers the rectangle
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              TextField(
+                controller: _emailController,
+                style: TextStyle(
+                    color: Colors.white), // Text color changed to white
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(
+                      color: Color(0xFFE0AA3E)), // Color of the label text
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color:
+                            Color(0xFFE0AA3E)), // Underline color when focused
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Color(
+                            0xFFE0AA3E)), // Underline color when not focused
+                  ),
+                ),
+                cursorColor: Color(0xFFE0AA3E), // Cursor color
+              ),
+              TextField(
+                controller: _passwordController,
+                style: TextStyle(
+                    color: Colors.white), // Text color changed to white
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: TextStyle(
+                      color: Color(0xFFE0AA3E)), // Color of the label text
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color:
+                            Color(0xFFE0AA3E)), // Underline color when focused
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Color(
+                            0xFFE0AA3E)), // Underline color when not focused
+                  ),
+                ),
+                cursorColor: Color(0xFFE0AA3E), // Cursor color
+              ),
+              const SizedBox(height: 60),
+              ElevatedButton(
+                onPressed: _emailSignIn,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                      Color(0xFFE0AA3E)), // Button background color
+                  foregroundColor: MaterialStateProperty.all(
+                      Colors.black), // Text color inside the button
+                ),
+                child: Text(
+                  _isRegistering ? 'Register' : 'Login',
+                  style:
+                      TextStyle(color: Colors.black), // Text color, if needed
+                ),
+              ),
+              TextButton(
+                onPressed: _toggleForm,
+                style: ButtonStyle(
+                  foregroundColor: MaterialStateProperty.all(
+                      Color(0xFFE0AA3E)), // Text color for TextButton
+                ),
+                child: Text(
+                  _isRegistering
+                      ? 'Already have an account? Login'
+                      : 'Don’t have an account? Register',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

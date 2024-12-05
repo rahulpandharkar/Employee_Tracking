@@ -27,7 +27,7 @@ class _MapsScreenState extends State<MapsScreen> {
     if (_markers.isEmpty) return;
 
     final points = _markers.map((marker) => marker.point).toList();
-    
+
     double minLat = points.first.latitude;
     double maxLat = points.first.latitude;
     double minLng = points.first.longitude;
@@ -42,7 +42,7 @@ class _MapsScreenState extends State<MapsScreen> {
 
     final latPadding = (maxLat - minLat) * 0.1;
     final lngPadding = (maxLng - minLng) * 0.1;
-    
+
     final bounds = LatLngBounds(
       LatLng(minLat - latPadding, minLng - lngPadding),
       LatLng(maxLat + latPadding, maxLng + lngPadding),
@@ -56,7 +56,8 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
-  void _showUserDetails(BuildContext context, String email, DateTime timestamp) {
+  void _showUserDetails(
+      BuildContext context, String email, DateTime timestamp) {
     final formattedDate = DateFormat('MMM dd, yyyy').format(timestamp);
     final formattedTime = DateFormat('HH:mm:ss').format(timestamp);
 
@@ -91,7 +92,13 @@ class _MapsScreenState extends State<MapsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: const Text(
+                'Close',
+                style: TextStyle(
+                  color: Color(0xFFE0AA3E), // Gold hex color
+                  fontWeight: FontWeight.bold, // Optional: Bold text
+                ),
+              ),
             ),
           ],
         );
@@ -107,24 +114,25 @@ class _MapsScreenState extends State<MapsScreen> {
 
       for (var userDoc in usersSnapshot.docs) {
         final String userEmail = userDoc.id;
-        
+
         // Query the 'timestamps' subcollection and order by timestamp
         final timestampsSnapshot = await userDoc.reference
             .collection('timestamps')
             .orderBy('timestamp', descending: true)
-            .limit(1)  // Get the most recent timestamp
+            .limit(1) // Get the most recent timestamp
             .get();
 
         if (timestampsSnapshot.docs.isNotEmpty) {
           final timestampDoc = timestampsSnapshot.docs.first;
           final timestampData = timestampDoc.data();
-          
+
           // Check if the last action was a checkin
           final action = timestampData['action'] as String;
           if (action == 'checkin') {
             final latitude = timestampData['latitude'] as double;
             final longitude = timestampData['longitude'] as double;
-            final timestamp = (timestampData['timestamp'] as Timestamp).toDate();
+            final timestamp =
+                (timestampData['timestamp'] as Timestamp).toDate();
 
             markers.add(
               Marker(
@@ -151,11 +159,13 @@ class _MapsScreenState extends State<MapsScreen> {
                         ),
                         child: Text(
                           userEmail,
-                          style: const TextStyle(fontSize: 12, color: Colors.black),
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.black),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const Icon(Icons.location_on, color: Colors.red, size: 30),
+                      const Icon(Icons.location_on,
+                          color: Colors.red, size: 30),
                     ],
                   ),
                 ),
@@ -213,7 +223,8 @@ class _MapsScreenState extends State<MapsScreen> {
                         ),
                         children: [
                           TileLayer(
-                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                             userAgentPackageName: 'com.example.app',
                           ),
                           MarkerLayer(markers: _markers),
@@ -223,15 +234,21 @@ class _MapsScreenState extends State<MapsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${_markers.length} users currently checked in',
+                    'Number of Users Currently Checked In: ${_markers.length}',
                     style: const TextStyle(
+                      color: Colors.white, 
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   TextButton(
                     onPressed: _fitBounds,
-                    child: const Text('Reset View'),
+                    child: const Text(
+                      'Reset View',
+                      style: TextStyle(
+                        color: Color(0xFFE0AA3E), // Gold hex color
+                      ),
+                    ),
                   ),
                 ],
               ),

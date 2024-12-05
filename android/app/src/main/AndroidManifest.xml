@@ -14,7 +14,7 @@
 
 
     <application
-        android:label="employee_application"
+        android:label="CNF System"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

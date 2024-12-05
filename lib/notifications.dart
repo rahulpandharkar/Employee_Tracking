@@ -17,7 +17,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
-        backgroundColor:  const Color.fromARGB(255, 144, 29, 167),
+        backgroundColor:  const Color(0xFFE0AA3E),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -96,7 +96,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ],
                       ),
                       trailing: IconButton(
-                        icon: const Icon(Icons.check),
+                        icon: const Icon(Icons.check, color: Color(0xFFE0AA3E)),
                         onPressed: () {
                           // sendNotification(userEmail ?? "Unknown", location, formattedTimestamp);
                           // Mark the notification as read
