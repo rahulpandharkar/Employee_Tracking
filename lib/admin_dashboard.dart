@@ -8,6 +8,7 @@ import 'notifications.dart';
 import 'login_register.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart'; 
+import 'package:geocoding/geocoding.dart'; 
 
 
 class AdminDashboard extends StatefulWidget {
@@ -183,17 +184,15 @@ Future<void> _checkAndUpdateDeviceToken() async {
     );
   }
 
-  Widget _buildHistoryDialog(String email, String historyType) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
+   Widget _buildHistoryDialog(String email, String historyType) {
+    return FutureBuilder<List<Map<String, dynamic>>>( 
       future: _fetchHistory(email, historyType),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         }
 
-        if (snapshot.hasError || 
-            snapshot.data == null || 
-            snapshot.data!.isEmpty) {
+        if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
           return AlertDialog(
             title: Text('No $historyType records found'),
             content: Text('There are no $historyType records available for this user.'),
@@ -211,19 +210,41 @@ Future<void> _checkAndUpdateDeviceToken() async {
           content: SingleChildScrollView(
             child: Column(
               children: snapshot.data!.map((data) {
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 5),
-                  child: ListTile(
-                    title: Text('Action: ${data['action']}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Latitude: ${data['latitude']}'),
-                        Text('Longitude: ${data['longitude']}'),
-                        Text('Timestamp: ${data['timestamp'].toDate()}'),
-                      ],
-                    ),
-                  ),
+                // Fetch geocoded address
+                double latitude = data['latitude'];
+                double longitude = data['longitude'];
+                return FutureBuilder<List<Placemark>>(
+                  future: _getAddressFromCoordinates(latitude, longitude),
+                  builder: (context, addressSnapshot) {
+                    if (addressSnapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                  var timestamp = data['timestamp'].toDate();
+                  String formattedTimestamp = DateFormat('dd MMM yyyy hh:mm:ss a').format(timestamp);
+
+                    String address = '';
+                    if (addressSnapshot.hasData && addressSnapshot.data!.isNotEmpty) {
+                      address = '${addressSnapshot.data!.first.street}, ${addressSnapshot.data!.first.locality}, ${addressSnapshot.data!.first.country}';
+                    } else {
+                      address = 'Address not found';
+                    }
+                    var real_action = data['action'] == 'checkin' ? "Check In" : (data['action'] == 'checkout' ? "Check Out" : "");
+
+
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 5),
+                      child: ListTile(
+                        title: Text('Action: $real_action'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Location: $address'), // Display address instead of latitude and longitude
+                            Text('Timestamp: $formattedTimestamp'),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 );
               }).toList(),
             ),
@@ -239,6 +260,16 @@ Future<void> _checkAndUpdateDeviceToken() async {
     );
   }
 
+  // Function to get address from latitude and longitude
+  Future<List<Placemark>> _getAddressFromCoordinates(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      return placemarks;
+    } catch (e) {
+      print("Error fetching address: $e");
+      return [];
+    }
+  }
   Future<List<Map<String, dynamic>>> _fetchHistory(String email, String historyType) async {
     try {
       final historySnapshot = await FirebaseFirestore.instance
