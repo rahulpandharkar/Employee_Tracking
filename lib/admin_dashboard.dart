@@ -262,7 +262,7 @@ Future<void> _checkAndUpdateDeviceToken() async {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: const Color.fromARGB(255, 128, 2, 245),
         actions: [
              IconButton(
             icon: const Icon(Icons.refresh, size: 30),
@@ -379,7 +379,7 @@ Future<void> _checkAndUpdateDeviceToken() async {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.greenAccent,
+              backgroundColor: const Color.fromARGB(255, 209, 3, 236),
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: Text(

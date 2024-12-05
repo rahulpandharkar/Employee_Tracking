@@ -21,12 +21,13 @@ class _LoginRegisterState extends State<LoginRegister> {
   Future<void> _emailSignIn() async {
     try {
       String enteredEmail = _emailController.text.trim();
-      
+
       // Check if the entered email is "admin", and automatically append "@admin.com"
       if (enteredEmail == "admin") {
         enteredEmail = "admin@admin.com";
       } else {
-        enteredEmail += "@gmail.com"; // You can change this to other domain if needed
+        enteredEmail +=
+            "@gmail.com"; // You can change this to other domain if needed
       }
 
       if (_isRegistering) {
@@ -122,6 +123,23 @@ class _LoginRegisterState extends State<LoginRegister> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Align(
+  alignment: Alignment.topCenter, // Aligns the box to the top center
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(20), // Adjust the curvature as needed
+    child: Container(
+      height: 150, // Height of the rectangle
+      width: 200, // Width of the rectangle
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/icon/icon.png'),
+          fit: BoxFit.cover, // Ensures the image covers the rectangle
+        ),
+      ),
+    ),
+  ),
+),
+
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
@@ -131,7 +149,7 @@ class _LoginRegisterState extends State<LoginRegister> {
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Password'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 60),
             ElevatedButton(
               onPressed: _emailSignIn,
               child: Text(_isRegistering ? 'Register' : 'Login'),

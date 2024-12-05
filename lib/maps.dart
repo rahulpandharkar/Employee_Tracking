@@ -151,7 +151,7 @@ class _MapsScreenState extends State<MapsScreen> {
                         ),
                         child: Text(
                           userEmail,
-                          style: const TextStyle(fontSize: 12),
+                          style: const TextStyle(fontSize: 12, color: Colors.black),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

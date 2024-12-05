@@ -245,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                 value: 'signout',
                 child: Row(
                   children: [
-                    Icon(Icons.logout, color: Colors.black),
+                    Icon(Icons.logout, color: Color.fromARGB(255, 255, 255, 255)),
                     SizedBox(width: 8),
                     Text('Sign Out'),
                   ],
