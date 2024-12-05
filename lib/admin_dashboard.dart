@@ -262,7 +262,7 @@ Future<void> _checkAndUpdateDeviceToken() async {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-        backgroundColor: const Color.fromARGB(255, 128, 2, 245),
+        backgroundColor:  const Color.fromARGB(255, 144, 29, 167),
         actions: [
              IconButton(
             icon: const Icon(Icons.refresh, size: 30),

@@ -17,7 +17,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
-        backgroundColor: const Color.fromARGB(255, 193, 0, 252),
+        backgroundColor:  const Color.fromARGB(255, 144, 29, 167),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -47,7 +47,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               var notificationId = notification.id;
               var timestamp =
                   notification['timestamp'].toDate(); // Firebase timestamp
-              var action = notification['action'];
+              var action = notification['action'] == 'checkin' ? "Checked In" : (notification['action'] == 'checkout' ? "Checked Out" : "");
               var latitude = notification['latitude'];
               var longitude = notification['longitude'];
 
@@ -86,7 +86,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   return Card(
                     margin: const EdgeInsets.all(8.0),
                     child: ListTile(
-                      title: Text('Action: $action'),
+                      title: Text('$action'),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

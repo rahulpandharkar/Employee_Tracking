@@ -15,10 +15,9 @@ import 'package:permission_handler/permission_handler.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await requestPermissions();
   runApp(const MyApp());
-  await Permission.locationWhenInUse.request(); 
-  await Permission.locationAlways.request(); 
-  await Permission.notification.request();
+  
   // await sendNotification(); 
 }
 
@@ -88,6 +87,22 @@ void main() async {
 
 // }
 
+Future<void> requestPermissions() async {
+  // Request notification permission
+  if (await Permission.notification.isDenied) {
+    await Permission.notification.request();
+  }
+  // Request location when in use permission
+  if (await Permission.locationWhenInUse.isDenied) {
+    await Permission.locationWhenInUse.request();
+  }
+  // Request location always permission
+  if (await Permission.locationAlways.isDenied) {
+    await Permission.locationAlways.request();
+  }
+}
+
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -104,7 +119,7 @@ class MyApp extends StatelessWidget {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: Colors.grey[900],
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.grey[850],
+        backgroundColor: const Color.fromARGB(255, 144, 29, 167),
         elevation: 0,
       ),
       textTheme: TextTheme(

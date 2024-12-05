@@ -57,7 +57,7 @@ class FirestoreService {
   }
 
   // Format the timestamp
-  String formattedTimestamp = DateFormat('dd MMM yyyy, HH:mm:ss').format(timestamp);
+    String formattedTimestamp =DateFormat('EEEE, MMM dd, yyyy, hh:mm:ss a').format(timestamp);
 
   // Fetch all device tokens from Firestore
   try {
@@ -76,7 +76,7 @@ class FirestoreService {
         'message': {
           'token': deviceToken,
           'notification': {
-            'title': "$action Notification",
+            'title': "$action!",
             'body': "$email $action at $location on $formattedTimestamp!",
           },
         },
