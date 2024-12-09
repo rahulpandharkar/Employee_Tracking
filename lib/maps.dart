@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart'; // Add this for date formatting
 import 'firestore_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MapsScreen extends StatefulWidget {
   const MapsScreen({super.key});
@@ -15,6 +16,7 @@ class MapsScreen extends StatefulWidget {
 
 class _MapsScreenState extends State<MapsScreen> {
   final MapController _mapController = MapController();
+
   List<Marker> _markers = [];
   bool _isLoading = true;
 
@@ -91,6 +93,51 @@ class _MapsScreenState extends State<MapsScreen> {
             ],
           ),
           actions: [
+           TextButton(
+  onPressed: () async {
+    // Request permission to make a phone call if not granted
+    var status = await Permission.phone.status;
+
+    if (!status.isGranted) {
+      // Request the permission
+      await Permission.phone.request();
+      // After requesting permission, check again
+      status = await Permission.phone.status;
+    }
+
+    // Proceed with calling only if permission is granted
+    if (status.isGranted) {
+      // Fetch the phone number dynamically from Firestore
+      final phoneNumber = await FirestoreService.getPhoneNumberFromFirestore(email);
+
+      // If phone number is found
+      if (phoneNumber != null) {
+        final Uri url = Uri.parse('tel:$phoneNumber'); // Ensure correct Uri format
+
+        // Check if the phone dialer can be launched
+        bool canLaunchPhone = await canLaunchUrl(url);
+        print('Can launch: $canLaunchPhone'); // Debugging output
+
+        if (canLaunchPhone) {
+          await launchUrl(url); // Launch the dialer
+        } else {
+          print('Could not launch phone dialer');
+        }
+      } else {
+        print('Phone number not found');
+      }
+    } else {
+      print('Permission denied');
+    }
+  },
+  style: TextButton.styleFrom(
+    foregroundColor: Color(0xFFE0AA3E), // Gold color for the text
+    textStyle: const TextStyle(
+      fontWeight: FontWeight.bold, // Bold text
+    ),
+  ),
+  child: const Text('Call'),
+),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
@@ -115,7 +162,8 @@ class _MapsScreenState extends State<MapsScreen> {
 
       for (var userDoc in usersSnapshot.docs) {
         final String userEmail = userDoc.id;
-        String? userName = await FirestoreService().getNameFromFirestore(userEmail);
+        String? userName =
+            await FirestoreService().getNameFromFirestore(userEmail);
         // Query the 'timestamps' subcollection and order by timestamp
         final timestampsSnapshot = await userDoc.reference
             .collection('timestamps')
@@ -237,7 +285,7 @@ class _MapsScreenState extends State<MapsScreen> {
                   Text(
                     'Number of Users Currently Checked In: ${_markers.length}',
                     style: const TextStyle(
-                      color: Colors.white, 
+                      color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),

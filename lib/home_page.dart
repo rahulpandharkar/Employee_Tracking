@@ -8,6 +8,7 @@ import 'login_register.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter/foundation.dart'; 
 import 'package:intl/intl.dart';
+import 'package:flutter_advanced_avatar/flutter_advanced_avatar.dart'; 
 
 
 class HomePage extends StatefulWidget {
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   bool _hasCheckedIn = false;
   String _email = '';
   String _profileImageUrl = "https://www.example.com/default_profile_image.png";
+  String _userName = ''; 
 
   final LocationService _locationService = LocationService();
   final FirestoreService _firestoreService = FirestoreService();
@@ -108,20 +110,25 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _fetchUserInfo() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      setState(() {
-        _email = user.email ?? 'No email';
-        _profileImageUrl = user.photoURL ??
-            'https://www.example.com/default_profile_image.png';
-      });
-    } else {
-      setState(() {
-        _email = 'User not logged in';
-      });
-    }
+ Future<void> _fetchUserInfo() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    // Fetch the name using the getNameFromFirestore function
+    String? userName = await FirestoreService().getNameFromFirestore(user.email ?? '');
+
+    setState(() {
+      _email = user.email ?? 'No email';
+      _profileImageUrl = user.photoURL ?? 'https://www.example.com/default_profile_image.png';
+      _userName = userName ?? 'No name'; // Use the fetched name
+    });
+  } else {
+    setState(() {
+      _email = 'User not logged in';
+      _userName = 'No name'; // Default value if user is not logged in
+    });
   }
+}
+
 
   Future<void> _fetchLatestTimestamp() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -280,13 +287,25 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: NetworkImage(_profileImageUrl),
-                    ),
+              AdvancedAvatar(
+  size: 100, // Size of the avatar
+  decoration: const BoxDecoration(
+    color: Color.fromARGB(255, 0, 0, 0), // Background color of the avatar
+    shape: BoxShape.circle, // Circular shape
+  ),
+  child: Text(
+    _userName.isNotEmpty ? _userName[0] : 'U', // Use the first character of the username
+    style: const TextStyle(
+      fontSize: 40, // Font size of the letter
+      fontWeight: FontWeight.bold,
+      color: Color(0xFFE0AA3E), // Letter color
+    ),
+  ),
+),
+
                     const SizedBox(height: 10),
                     Text(
-                      _email,
+                      _userName, 
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

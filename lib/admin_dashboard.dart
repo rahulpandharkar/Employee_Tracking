@@ -9,6 +9,7 @@ import 'login_register.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart';
+import 'firestore_service.dart'; 
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({Key? key}) : super(key: key);
@@ -451,94 +452,126 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildDashboardContent() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MapsScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE0AA3E),
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-            child: Text(
-              'View Map',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
+Widget _buildDashboardContent() {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MapsScreen()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFE0AA3E),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           ),
-          SizedBox(height: 20),
-          Expanded(
-            child: _users.isEmpty
-                ? Center(child: Text('No users found'))
-                : ListView.builder(
-                    itemCount: _users.length,
-                    itemBuilder: (context, index) {
-                      String email = _users[index].id;
-                      return Card(
-                        margin: EdgeInsets.symmetric(vertical: 5),
-                        child: ListTile(
-                          title: Text(email),
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text('Select History'),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        _showHistoryModal(
-                                            context, email, 'checkin');
-                                      },
-                                      child: const Text(
-                                        'Check-in History',
-                                        style: TextStyle(
-                                          color: Color(
-                                              0xFFE0AA3E), // Gold hex color
-                                          fontWeight: FontWeight
-                                              .bold, // Optional: Bold text
+          child: Text(
+            'View Map',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black),
+          ),
+        ),
+        SizedBox(height: 20),
+        Expanded(
+          child: _users.isEmpty
+              ? Center(child: Text('No users found'))
+              : ListView.builder(
+                  itemCount: _users.length,
+                  itemBuilder: (context, index) {
+                    String userEmail = _users[index].id;
+
+                    return FutureBuilder<String?>(
+                      future: FirestoreService().getNameFromFirestore(userEmail), // Fetch name from Firestore
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 5),
+                            child: ListTile(
+                              title: Text('Loading...'),
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 5),
+                            child: ListTile(
+                              title: Text('Error fetching name'),
+                            ),
+                          );
+                        } else if (!snapshot.hasData) {
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 5),
+                            child: ListTile(
+                              title: Text('No name available'),
+                            ),
+                          );
+                        }
+
+                        // Now we have the user's name from Firestore
+                        String userName = snapshot.data!;
+
+                        return Card(
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          child: ListTile(
+                            title: Text(userName),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Select History'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          _showHistoryModal(
+                                              context, userEmail, 'checkin');
+                                        },
+                                        child: const Text(
+                                          'Check-in History',
+                                          style: TextStyle(
+                                            color: Color(
+                                                0xFFE0AA3E), // Gold hex color
+                                            fontWeight: FontWeight
+                                                .bold, // Optional: Bold text
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        _showHistoryModal(
-                                            context, email, 'checkout');
-                                      },
-                                      child: const Text(
-                                        'Check-Out History',
-                                        style: TextStyle(
-                                          color: Color(
-                                              0xFFE0AA3E), // Gold hex color
-                                          fontWeight: FontWeight
-                                              .bold, // Optional: Bold text
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          _showHistoryModal(
+                                              context, userEmail, 'checkout');
+                                        },
+                                        child: const Text(
+                                          'Check-Out History',
+                                          style: TextStyle(
+                                            color: Color(
+                                                0xFFE0AA3E), // Gold hex color
+                                            fontWeight: FontWeight
+                                                .bold, // Optional: Bold text
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+        ),
+      ],
+    ),
+  );
+}
 }

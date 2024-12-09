@@ -191,6 +191,30 @@ Future<String?> getNameFromFirestore(String email) async {
   }
 }
 
+static Future<String?> getPhoneNumberFromFirestore(String email) async {
+  try {
+    // Get the user document from Firestore using the provided email
+    DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(email);
+    DocumentSnapshot snapshot = await userDoc.collection('user-details').doc('details').get();
+
+    print("Document exists: ${snapshot.exists}"); // Check if the document exists
+
+    // Check if the document exists
+    if (snapshot.exists) {
+      // Retrieve the phone number field from the document
+      String phoneNumber = snapshot['phone_number'];
+      print("The phone number is: $phoneNumber"); // Print the phone number for debugging
+      return phoneNumber; // Return the phone number
+    } else {
+      print("User details not found for email: $email");
+      return null; // Return null if the document does not exist
+    }
+  } catch (e) {
+    print("Error fetching phone number for email $email: $e");
+    return null; // Return null if there was an error
+  }
+}
+
 
   // Function to save check-in data
   Future<void> saveCheckIn(Position position) async {
