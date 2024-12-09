@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart'; // Import the HomePage widget
 import 'admin_dashboard.dart'; // Import AdminDashboard widget
+import 'firestore_service.dart'; 
 
 class LoginRegister extends StatefulWidget {
   const LoginRegister({super.key});
@@ -14,6 +15,9 @@ class _LoginRegisterState extends State<LoginRegister> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final FirestoreService _firestoreService = FirestoreService();
 
   bool _isRegistering = false;
 
@@ -35,6 +39,11 @@ class _LoginRegisterState extends State<LoginRegister> {
         await _auth.createUserWithEmailAndPassword(
           email: enteredEmail,
           password: _passwordController.text.trim(),
+        );
+        await _firestoreService.saveRegisteredData(
+          _nameController.text.trim(),
+          enteredEmail,
+          _phoneController.text.trim(),
         );
         _showSuccessDialog('Registration successful');
         Navigator.pushReplacement(
@@ -122,116 +131,148 @@ class _LoginRegisterState extends State<LoginRegister> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Welcome to Chamfers n Fillets!',
-          style: TextStyle(color: Colors.black), // Set the text color to black
-        ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    resizeToAvoidBottomInset: true, // Adjust layout when the keyboard appears
+    appBar: AppBar(
+      title: const Text(
+        'Welcome to Chamfers n Fillets!',
+        style: TextStyle(color: Colors.black),
       ),
-      body: Container(
-        color: const Color.fromARGB(
-            255, 0, 0, 0), // Set your desired background color here
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Align(
-                alignment:
-                    Alignment.topCenter, // Aligns the box to the top center
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(
-                      20), // Adjust the curvature as needed
-                  child: Container(
-                    height: 150, // Height of the rectangle
-                    width: 200, // Width of the rectangle
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage('assets/icon/icon.png'),
-                        fit: BoxFit
-                            .cover, // Ensures the image covers the rectangle
+    ),
+    body: Container(
+      color: const Color.fromARGB(255, 0, 0, 0),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Minimize unused space
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Logo/Header
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      height: 150,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/icon/icon.png'),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              TextField(
-                controller: _emailController,
-                style: TextStyle(
-                    color: Colors.white), // Text color changed to white
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(
-                      color: Color(0xFFE0AA3E)), // Color of the label text
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color:
-                            Color(0xFFE0AA3E)), // Underline color when focused
+                const SizedBox(height: 20), // Spacing below the logo
+                // Name Field (Visible only during registration)
+                if (_isRegistering)
+                  TextField(
+                    controller: _nameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                      labelStyle: const TextStyle(color: Color(0xFFE0AA3E)),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                      ),
+                      enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                      ),
+                    ),
+                    cursorColor: const Color(0xFFE0AA3E),
                   ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Color(
-                            0xFFE0AA3E)), // Underline color when not focused
+                if (_isRegistering)
+                  const SizedBox(height: 10), // Spacing between fields
+                if (_isRegistering)
+                  TextField(
+                    controller: _phoneController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      labelStyle: const TextStyle(color: Color(0xFFE0AA3E)),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                      ),
+                      enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                      ),
+                    ),
+                    cursorColor: const Color(0xFFE0AA3E),
+                  ),
+                const SizedBox(height: 10), // Spacing between fields
+                // Email Field
+                TextField(
+                  controller: _emailController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: const TextStyle(color: Color(0xFFE0AA3E)),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                    ),
+                  ),
+                  cursorColor: const Color(0xFFE0AA3E),
+                ),
+                const SizedBox(height: 10), // Spacing between fields
+                // Password Field
+                TextField(
+                  controller: _passwordController,
+                  style: const TextStyle(color: Colors.white),
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: const TextStyle(color: Color(0xFFE0AA3E)),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                    ),
+                  ),
+                  cursorColor: const Color(0xFFE0AA3E),
+                ),
+                const SizedBox(height: 20), // Spacing above the button
+                // Register/Login Button
+                ElevatedButton(
+                  onPressed: _emailSignIn,
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(const Color(0xFFE0AA3E)),
+                    foregroundColor: MaterialStateProperty.all(Colors.black),
+                  ),
+                  child: Text(
+                    _isRegistering ? 'Register' : 'Login',
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ),
-                cursorColor: Color(0xFFE0AA3E), // Cursor color
-              ),
-              TextField(
-                controller: _passwordController,
-                style: TextStyle(
-                    color: Colors.white), // Text color changed to white
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(
-                      color: Color(0xFFE0AA3E)), // Color of the label text
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color:
-                            Color(0xFFE0AA3E)), // Underline color when focused
+                const SizedBox(height: 10), // Spacing above the toggle text
+                // Toggle Login/Register Text
+                TextButton(
+                  onPressed: _toggleForm,
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.all(
+                        const Color(0xFFE0AA3E)), // Text color
                   ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Color(
-                            0xFFE0AA3E)), // Underline color when not focused
+                  child: Text(
+                    _isRegistering
+                        ? 'Already have an account? Login'
+                        : 'Don’t have an account? Register',
                   ),
                 ),
-                cursorColor: Color(0xFFE0AA3E), // Cursor color
-              ),
-              const SizedBox(height: 60),
-              ElevatedButton(
-                onPressed: _emailSignIn,
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                      Color(0xFFE0AA3E)), // Button background color
-                  foregroundColor: MaterialStateProperty.all(
-                      Colors.black), // Text color inside the button
-                ),
-                child: Text(
-                  _isRegistering ? 'Register' : 'Login',
-                  style:
-                      TextStyle(color: Colors.black), // Text color, if needed
-                ),
-              ),
-              TextButton(
-                onPressed: _toggleForm,
-                style: ButtonStyle(
-                  foregroundColor: MaterialStateProperty.all(
-                      Color(0xFFE0AA3E)), // Text color for TextButton
-                ),
-                child: Text(
-                  _isRegistering
-                      ? 'Already have an account? Login'
-                      : 'Don’t have an account? Register',
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -6,6 +6,7 @@ import 'home_page.dart';
 import 'admin_dashboard.dart'; // Make sure to create this file
 import 'location_setting_monitor.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'geofencing.dart'; 
 // import 'package:http/http.dart' as http; 
 // import 'package:googleapis_auth/auth_io.dart' as auth;
 // import 'package:googleapis/servicecontrol/v1.dart' as servicecontrol;  
@@ -16,6 +17,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await requestPermissions();
+  // Geofencing().startGeofencing();
   runApp(const MyApp());
   
   // await sendNotification(); 

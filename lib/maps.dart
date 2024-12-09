@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart'; // Add this for date formatting
+import 'firestore_service.dart';
 
 class MapsScreen extends StatefulWidget {
   const MapsScreen({super.key});
@@ -114,7 +115,7 @@ class _MapsScreenState extends State<MapsScreen> {
 
       for (var userDoc in usersSnapshot.docs) {
         final String userEmail = userDoc.id;
-
+        String? userName = await FirestoreService().getNameFromFirestore(userEmail);
         // Query the 'timestamps' subcollection and order by timestamp
         final timestampsSnapshot = await userDoc.reference
             .collection('timestamps')
@@ -158,7 +159,7 @@ class _MapsScreenState extends State<MapsScreen> {
                           ],
                         ),
                         child: Text(
-                          userEmail,
+                          userName ?? userEmail,
                           style: const TextStyle(
                               fontSize: 12, color: Colors.black),
                           overflow: TextOverflow.ellipsis,

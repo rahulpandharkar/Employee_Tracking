@@ -39,7 +39,7 @@ class FirestoreService {
   return credentials.accessToken.data;
   }
 
-    Future<void> sendNotification(String email, String action, double latitude, double longitude, DateTime timestamp) async {
+  Future<void> sendNotification(String email, String action, double latitude, double longitude, DateTime timestamp) async {
   print("**********************************************************SEND NOTIFICATION CALLED****************************************************"); 
   final String serverKey = await getServerToken();
   String endpoint = "https://fcm.googleapis.com/v1/projects/employee-app-1fd50/messages:send";
@@ -63,6 +63,7 @@ class FirestoreService {
   try {
     CollectionReference deviceTokensCollection = FirebaseFirestore.instance.collection('/admin/device-tokens/timestamps');
     QuerySnapshot snapshot = await deviceTokensCollection.get();
+    String? userName =  await getNameFromFirestore(email);
 
     if (snapshot.docs.isEmpty) {
       print("No device tokens found.");
@@ -77,7 +78,7 @@ class FirestoreService {
           'token': deviceToken,
           'notification': {
             'title': "$action!",
-            'body': "$email $action at $location on $formattedTimestamp!",
+            'body': "$userName $action at $location on $formattedTimestamp!",
           },
         },
       };
@@ -139,6 +140,57 @@ class FirestoreService {
       print("Error saving $action data: $e");
     }
   }
+
+  Future<void> saveRegisteredData(String name, String email, String phoneNumber) async {
+  try {
+    // Reference to the user's document in Firestore
+    DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(email);
+
+    // Ensure 'user-details' exists and is not overwritten
+    var userDetailsDoc = await userDoc.collection('user-details').doc('details').get();
+    
+    // If 'user-details' doesn't exist, save it
+    if (!userDetailsDoc.exists) {
+      await userDoc.collection('user-details').doc('details').set({
+        'name': name,
+        'email': email,
+        'phone_number': phoneNumber,
+        'created_at': FieldValue.serverTimestamp(),
+      });
+      print("User details saved successfully for $email.");
+    } else {
+      print("User details already exist for $email.");
+    }
+  } catch (e) {
+    print("Error saving user details for $email: $e");
+  }
+}
+
+
+Future<String?> getNameFromFirestore(String email) async {
+  try {
+    // Get the user document from Firestore using the provided email
+    DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(email);
+    DocumentSnapshot snapshot = await userDoc.collection('user-details').doc('details').get();
+
+    print("Document exists: ${snapshot.exists}"); // Check if the document exists
+
+    // Check if the document exists
+    if (snapshot.exists) {
+      // Retrieve the name field from the document
+      String name = snapshot['name'];
+      print("The name is: $name"); // Print the name for debugging
+      return name; // Return the name
+    } else {
+      print("User details not found for email: $email");
+      return null; // Return null if the document does not exist
+    }
+  } catch (e) {
+    print("Error fetching user name for email $email: $e");
+    return null; // Return null if there was an error
+  }
+}
+
 
   // Function to save check-in data
   Future<void> saveCheckIn(Position position) async {
