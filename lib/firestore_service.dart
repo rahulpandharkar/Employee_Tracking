@@ -8,6 +8,7 @@ import 'package:googleapis/servicecontrol/v1.dart' as servicecontrol;
 import 'dart:convert'; 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:geocoding/geocoding.dart'; 
+import 'dart:math'; 
 
 class FirestoreService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -165,6 +166,83 @@ class FirestoreService {
     print("Error saving user details for $email: $e");
   }
 }
+
+ Future<void> checkSuspiciousCheckout(Position checkoutPosition, DateTime checkoutTimestamp) async {
+    User? user = _auth.currentUser;
+    if (user == null) return;
+
+    try {
+      print('Suspicious Checkout Called'); 
+      DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(user.email);
+      QuerySnapshot snapshot = await userDoc
+          .collection('timestamps')
+          .where('action', isEqualTo: 'checkin')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        var latestCheckIn = snapshot.docs.first;
+        double checkInLat = latestCheckIn['latitude'];
+        double checkInLng = latestCheckIn['longitude'];
+        Timestamp checkInTimestamp = latestCheckIn['timestamp'];
+
+        double distance = _calculateDistance(
+          checkInLat,
+          checkInLng,
+          checkoutPosition.latitude,
+          checkoutPosition.longitude,
+        );
+
+        Duration timeDifference = checkoutTimestamp.difference(checkInTimestamp.toDate());
+        double timeDifferenceHours = timeDifference.inHours.toDouble();
+
+        Map<String, dynamic> suspiciousData = {
+          'checkInLat': checkInLat,
+          'checkInLng': checkInLng,
+          'checkoutLat': checkoutPosition.latitude,
+          'checkoutLng': checkoutPosition.longitude,
+          'timestamp': FieldValue.serverTimestamp(),
+          'distance': distance,
+          'timeDifferenceHours': timeDifferenceHours,
+        };
+
+        if (distance > 2.0) {
+          suspiciousData['geofence_broken'] = true;
+        }
+
+        if (timeDifferenceHours > 4.0) {
+          suspiciousData['time_bound_broken'] = true;
+        }
+
+        if (suspiciousData.containsKey('geofence_broken') || suspiciousData.containsKey('time_bound_broken')) {
+          String formattedTimestamp = DateFormat('yyyy-MM-dd-HH:mm').format(checkoutTimestamp);
+          await userDoc.collection('suspiciousCheckouts').doc(formattedTimestamp).set(suspiciousData);
+          print("Suspicious checkout recorded: $suspiciousData");
+        }
+        else { 
+          print('Not a suspicious checkout, universe is fine'); 
+        }
+      }
+    } catch (e) {
+      print("Error checking suspicious checkout: $e");
+    }
+  }
+
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double R = 6371.0;
+    double dLat = _degreesToRadians(lat2 - lat1);
+    double dLon = _degreesToRadians(lon2 - lon1);
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degreesToRadians(lat1)) * cos(_degreesToRadians(lat2)) *
+            sin(dLon / 2) * sin(dLon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return R * c;
+  }
+
+  double _degreesToRadians(double degrees) {
+    return degrees * pi / 180;
+  }
 
 
 Future<String?> getNameFromFirestore(String email) async {
