@@ -54,7 +54,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Future<void> _checkAdminAccess() async {
     User? user = FirebaseAuth.instance.currentUser;
-    if (user == null || user.email != 'admin@admin.com') {
+    if (user == null || user.email != 'admin@cnf.in') {
       await FirebaseAuth.instance.signOut();
       throw 'Unauthorized Access';
     }
