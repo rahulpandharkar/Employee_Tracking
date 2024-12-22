@@ -162,7 +162,7 @@ class MyApp extends StatelessWidget {
 }
 class AuthWrapper extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  static const String adminEmail = 'admin@admin.com';
+  static const String adminEmail = 'admin@cnf.in';
 
   AuthWrapper({super.key});
 
