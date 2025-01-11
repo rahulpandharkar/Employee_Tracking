@@ -28,6 +28,10 @@ jobs:
         run: |
           echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json  # Write the google-services.json from secret
 
+      - name: Check google-services.json content
+        run: |
+          cat android/app/google-services.json
+
       - name: Build APK
         run: flutter build apk --release  # Build the APK for release
 
