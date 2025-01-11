@@ -27,13 +27,15 @@ jobs:
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}  # GitHub secret containing your google-services.json content
           dir: "android/app"  # The directory to place the file in
 
-      - name: Create service_token.json from GitHub secret
+      - name: Ensure directory exists and create service_token.json from GitHub secret
         id: create-service-token-json
-        uses: jsdaniell/create-json@v1.2.3
-        with:
-          name: "service_token.json"  # The name of the file to be created
-          json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE }}  # GitHub secret containing your service_token.json content
-          dir: "assets/fcm_access_token"  # The directory to place the file in
+        run: |
+          mkdir -p assets/fcm_access_token  # Ensure the directory exists
+          uses: jsdaniell/create-json@v1.2.3
+          with:
+            name: "service_token.json"  # The name of the file to be created
+            json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE }}  # GitHub secret containing your service_token.json content
+            dir: "assets/fcm_access_token"  # The directory to place the file in
 
       - name: Build APK
         run: flutter build apk --release  # Build the APK for release
