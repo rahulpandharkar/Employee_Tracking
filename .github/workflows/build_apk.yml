@@ -12,25 +12,27 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+        
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
 
       - name: Install dependencies
         run: flutter pub get
-      
-      - name: Create service_token.json from GitHub Secret
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE }}" > assets/fcm_access_token/service_token.json
-      
+        
+      - name: Create service_token.json directory and file from GitHub Secret
+        run: |
+          mkdir -p assets/fcm_access_token  # Ensure the directory exists
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE }}" > assets/fcm_access_token/service_token.json  # Write the secret to the file
+
       - name: Build APK
         run: flutter build apk --release
-      
+
       - name: Upload APK as an artifact
         uses: actions/upload-artifact@v3
         with:
           name: app-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-      
+
       - name: Create a Release on GitHub
         uses: softprops/action-gh-release@v1
         env:
