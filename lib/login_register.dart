@@ -31,7 +31,7 @@ class _LoginRegisterState extends State<LoginRegister> {
       // Check if the entered email is "admin", and automatically append "@admin.com"
       if (enteredEmail == "admin") {
         enteredEmail = "admin@cnf.in";
-      } 
+      }
       if (_isRegistering) {
         // Registration logic
         await _auth.createUserWithEmailAndPassword(
@@ -75,32 +75,34 @@ class _LoginRegisterState extends State<LoginRegister> {
 
   // Show success dialog
   void _showSuccessDialog(String message) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('Success'),
-          content: Text(
-            message,
-            style:
-                const TextStyle(color: Colors.white), // Set text color to white
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Success', style: TextStyle(color: Color(0xFFE0AA3E))),
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white, // Set text color to white
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Ok',
-                style: TextStyle(
-                  color: Colors.white, // Gold hex color
-                  fontWeight: FontWeight.bold, // Optional: Bold text
-                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                color: Color(0xFFE0AA3E), // Gold color for the button text
+                fontWeight: FontWeight.bold, // Bold text
               ),
             ),
-          ],
-        ),
-      );
-    });
-  }
+          ),
+        ],
+      ),
+    );
+  });
+}
+
 
   // Show error dialog
   void _showErrorDialog(String message) {
@@ -113,7 +115,11 @@ class _LoginRegisterState extends State<LoginRegister> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: const Text(
+                'Close',
+                style: TextStyle(
+                    color: Color(0xFFE0AA3E)), // Consistent color styling
+              ),
             ),
           ],
         ),
@@ -128,6 +134,76 @@ class _LoginRegisterState extends State<LoginRegister> {
     });
   }
 
+Future<void> reset() async {
+  String enteredEmail = '';
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Reset Password'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Enter your email address to receive a password reset link.',
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              onChanged: (value) {
+                enteredEmail = value.trim();
+              },
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                labelStyle: TextStyle(color: Color(0xFFE0AA3E)),
+                hintText: 'example@domain.com',
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                ),
+              ),
+              cursorColor: const Color(0xFFE0AA3E),
+              keyboardType: TextInputType.emailAddress,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+            },
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFFE0AA3E)),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (enteredEmail.isEmpty) {
+                _showErrorDialog('Please enter your email address.');
+                return;
+              }
+              try {
+                // Send the password reset email directly
+                await _auth.sendPasswordResetEmail(email: enteredEmail);
+                Navigator.pop(context); // Close the dialog
+                _showSuccessDialog('Password reset email sent, would be only received if the user is registered on the system. Please check your inbox.');
+              } catch (e) {
+                Navigator.pop(context); // Close the dialog
+                _showErrorDialog('Error: ${e.toString()}');
+              }
+            },
+            child: const Text(
+              'Send',
+              style: TextStyle(color: Color(0xFFE0AA3E)),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,34 +297,37 @@ class _LoginRegisterState extends State<LoginRegister> {
                   const SizedBox(height: 10), // Spacing between fields
                   // Email Field
                   TextField(
-  controller: _emailController,
-  style: const TextStyle(color: Colors.white),
-  keyboardType: TextInputType.emailAddress, // Ensures email keyboard
-  decoration: InputDecoration(
-    labelText: 'Email',
-    labelStyle: const TextStyle(color: Color(0xFFE0AA3E)),
-    focusedBorder: const UnderlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFE0AA3E)),
-    ),
-    enabledBorder: const UnderlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFE0AA3E)),
-    ),
-    errorText: _emailError, // Display error message dynamically
-    errorStyle: const TextStyle(color: Colors.red),
-  ),
-  cursorColor: const Color(0xFFE0AA3E),
-  onChanged: (value) {
-    setState(() {
-      if (value.isEmpty) {
-        _emailError = 'Email is required';
-      } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-        _emailError = 'Enter a valid email address';
-      } else {
-        _emailError = null; // Clear the error
-      }
-    });
-  },
-),
+                    controller: _emailController,
+                    style: const TextStyle(color: Colors.white),
+                    keyboardType:
+                        TextInputType.emailAddress, // Ensures email keyboard
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: const TextStyle(color: Color(0xFFE0AA3E)),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                      ),
+                      enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE0AA3E)),
+                      ),
+                      errorText:
+                          _emailError, // Display error message dynamically
+                      errorStyle: const TextStyle(color: Colors.red),
+                    ),
+                    cursorColor: const Color(0xFFE0AA3E),
+                    onChanged: (value) {
+                      setState(() {
+                        if (value.isEmpty) {
+                          _emailError = 'Email is required';
+                        } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value)) {
+                          _emailError = 'Enter a valid email address';
+                        } else {
+                          _emailError = null; // Clear the error
+                        }
+                      });
+                    },
+                  ),
                   const SizedBox(height: 10), // Spacing between fields
                   // Password Field
                   TextField(
@@ -282,6 +361,16 @@ class _LoginRegisterState extends State<LoginRegister> {
                     ),
                   ),
                   const SizedBox(height: 10), // Spacing above the toggle text
+                  // Forgot Password (Visible only during login)
+                  if (!_isRegistering)
+                    TextButton(
+                      onPressed: reset,
+                      style: ButtonStyle(
+                        foregroundColor:
+                            MaterialStateProperty.all(const Color(0xFFE0AA3E)),
+                      ),
+                      child: const Text('Forgot Password?'),
+                    ),
                   // Toggle Login/Register Text
                   TextButton(
                     onPressed: _toggleForm,
