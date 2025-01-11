@@ -18,21 +18,25 @@ jobs:
         run: |
           mkdir -p assets/fcm_access_token  # Ensure the directory exists
           printf "%s" "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE }}" > assets/fcm_access_token/service_token.json  # Write the secret content directly into the JSON file
+          ls -l assets/fcm_access_token  # Debug: Check if file was created
 
       # Write google-services.json file from GitHub Secret
       - name: Write google-services.json from GitHub secret
         run: |
           mkdir -p android/app  # Ensure the directory exists
           printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json  # Write the google-services.json content directly into the file
+          ls -l android/app  # Debug: Check if file was created
 
       # Check the contents of the decoded google-services.json (for debugging)
       - name: Check google-services.json content
         run: |
           echo "---- google-services.json content ----"
           cat android/app/google-services.json  # Print the content of the google-services.json file
+          ls -l android/app/google-services.json  # Debug: Check if the file exists and has content
 
       # Check the contents of the decoded service_token.json (for debugging)
       - name: Check service_token.json content
         run: |
           echo "---- service_token.json content ----"
           cat assets/fcm_access_token/service_token.json  # Print the content of the service_token.json file
+          ls -l assets/fcm_access_token/service_token.json  # Debug: Check if the file exists and has content
