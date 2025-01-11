@@ -7,32 +7,33 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
-    
+    runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3  # Checks out your repository's code
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2  # Set up Flutter environment
-
-    - name: Install dependencies
-      run: |
-        flutter pub get  # Fetch the dependencies
-
-    - name: Build APK
-      run: |
-        flutter build apk --release  # Build the APK for release
-    
-    - name: Upload APK as an artifact
-      uses: actions/upload-artifact@v3  # Uploads the APK file as an artifact
-      with:
-        name: app-apk
-        path: build/app/outputs/flutter-apk/app-release.apk  # Path to the APK
-    
-    - name: Create a Release on GitHub
-      uses: softprops/action-gh-release@v1  # Create a GitHub release and upload APK to it
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token to authenticate
-      with:
-        files: build/app/outputs/flutter-apk/app-release.apk  # Path to the APK
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Create service_token.json from GitHub Secret
+        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE }}" > assets/fcm_access_token/service_token.json
+      
+      - name: Build APK
+        run: flutter build apk --release
+      
+      - name: Upload APK as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+      
+      - name: Create a Release on GitHub
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/app/outputs/flutter-apk/app-release.apk
