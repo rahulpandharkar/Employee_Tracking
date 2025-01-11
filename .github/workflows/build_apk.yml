@@ -2,8 +2,6 @@ name: Flutter Build and Upload APK
 
 on:
   push:
-    branches:
-      - master  # This triggers the workflow on push to the master branch (adjust to your branch if needed)
     tags:
       - 'v*.*.*'  # This triggers the workflow for tags like v1.0.0, v2.1.0, etc.
 
@@ -47,7 +45,7 @@ jobs:
       - name: Upload APK as an artifact
         uses: actions/upload-artifact@v3  # Uploads the APK file as an artifact
         with:
-          name: app-apk
+          name: cnf-system
           path: build/app/outputs/flutter-apk/app-release.apk  # Path to the APK
 
       - name: Create a Release on GitHub
