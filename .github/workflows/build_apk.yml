@@ -54,5 +54,6 @@ jobs:
         uses: softprops/action-gh-release@v1  # Create a GitHub release and upload APK to it
         with:
           files: build/app/outputs/flutter-apk/app-release.apk  # Path to the APK
+          tag_name: ${{ github.ref }}  # Use the tag that triggered the workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token to authenticate
