@@ -3,7 +3,7 @@ name: Flutter Build and Upload APK
 on:
   push:
     branches:
-      - main  # This triggers the workflow on push to the main branch (adjust to your branch)
+      - master  # This triggers the workflow on push to the main branch (adjust to your branch)
 
 jobs:
   build:
