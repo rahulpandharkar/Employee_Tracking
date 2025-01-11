@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master  # This triggers the workflow on push to the master branch (adjust to your branch if needed)
+    tags:
+      - 'v*.*.*'  # This triggers the workflow for tags like v1.0.0, v2.1.0, etc.
 
 jobs:
   build:
@@ -47,11 +49,6 @@ jobs:
         with:
           name: app-apk
           path: build/app/outputs/flutter-apk/app-release.apk  # Path to the APK
-
-      - name: Create a tag for the release
-        run: |
-          git tag -a "v1.0.${{ github.run_number }}" -m "Release v1.0.${{ github.run_number }}"
-          git push origin --tags  # Push the tag to the remote repository
 
       - name: Create a Release on GitHub
         uses: softprops/action-gh-release@v1  # Create a GitHub release and upload APK to it
