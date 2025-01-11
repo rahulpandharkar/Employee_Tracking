@@ -1,4 +1,4 @@
-name: Check JSON Content
+name: Flutter Build and Upload APK
 
 on:
   push:
@@ -6,37 +6,41 @@ on:
       - master  # This triggers the workflow on push to the master branch (adjust to your branch if needed)
 
 jobs:
-  check-json-content:
+  build:
     runs-on: ubuntu-latest  # Use the latest Ubuntu runner
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3  # Checks out your repository's code
 
-      # Write service_token.json file from GitHub Secret
-      - name: Write service_token.json from GitHub secret
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2  # Set up Flutter environment
+
+      - name: Install dependencies
+        run: flutter pub get  # Fetch the dependencies
+
+      - name: Create service_token.json directory and file from GitHub Secret
         run: |
           mkdir -p assets/fcm_access_token  # Ensure the directory exists
-          printf "%s" "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE }}" > assets/fcm_access_token/service_token.json  # Write the secret content directly into the JSON file
-          ls -l assets/fcm_access_token  # Debug: Check if file was created
+          printf "%s" "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FILE }}" > assets/fcm_access_token/service_token.json  # Write the secret to the file using printf
 
-      # Write google-services.json file from GitHub Secret
-      - name: Write google-services.json from GitHub secret
+      - name: Create google-services.json file from GitHub Secret
         run: |
           mkdir -p android/app  # Ensure the directory exists
-          printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json  # Write the google-services.json content directly into the file
-          ls -l android/app  # Debug: Check if file was created
+          printf "%s" "${{ secrets.GOOGLE_SERVICES_JSON }}" > android/app/google-services.json  # Write the google-services.json from secret using printf
 
-      # Check the contents of the decoded google-services.json (for debugging)
-      - name: Check google-services.json content
-        run: |
-          echo "---- google-services.json content ----"
-          cat android/app/google-services.json  # Print the content of the google-services.json file
-          ls -l android/app/google-services.json  # Debug: Check if the file exists and has content
+      - name: Build APK (Release)
+        run: flutter build apk --release  # Build the APK for release
 
-      # Check the contents of the decoded service_token.json (for debugging)
-      - name: Check service_token.json content
-        run: |
-          echo "---- service_token.json content ----"
-          cat assets/fcm_access_token/service_token.json  # Print the content of the service_token.json file
-          ls -l assets/fcm_access_token/service_token.json  # Debug: Check if the file exists and has content
+      - name: Upload APK as an artifact
+        uses: actions/upload-artifact@v3  # Uploads the APK file as an artifact
+        with:
+          name: app-apk
+          path: build/app/outputs/flutter-apk/app-release.apk  # Path to the APK
+
+      - name: Create a Release on GitHub
+        uses: softprops/action-gh-release@v1  # Create a GitHub release and upload APK to it
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token to authenticate
+        with:
+          files: build/app/outputs/flutter-apk/app-release.apk  # Path to the APK
