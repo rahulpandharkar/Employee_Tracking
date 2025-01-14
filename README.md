@@ -15,11 +15,11 @@ This Flutter-based application helps organizations track employee check-in and c
 
 ## Application Screens
 
-| <img src="screenshots/login_register.jpg" alt="Login/Register Page" width="200" /> | <img src="screenshots/home.jpg" alt="Home Page" width="200" /> | <img src="screenshots/admin_home.jpg" alt="Admin Home Page" width="200" /> | <img src="screenshots/admin_view_history.jpg" alt="View History for Admin" width="200" /> |
+| <img src="screenshots/login_register.png" alt="Login/Register Page" width="200" /> | <img src="screenshots/home.png" alt="Home Page" width="200" /> | <img src="screenshots/admin_home.png" alt="Admin Home Page" width="200" /> | <img src="screenshots/admin_view_history.png" alt="View History for Admin" width="200" /> |
 | -------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | **Login/Register Page**                                  | **Home Page**                                             | **Admin Home Page**                                          | **View History for Admin**                                  |
 
-| <img src="screenshots/admin_show_history.jpg" alt="View History Details" width="200" /> | <img src="screenshots/admin_maps.jpg" alt="Maps for Admin" width="200" /> | <img src="screenshots/admin_details_on_map.jpg" alt="Details on Map" width="200" /> | <img src="screenshots/notifications.png" alt="Admin Notification Screen" width="200" /> |
+| <img src="screenshots/admin_show_history.png" alt="View History Details" width="200" /> | <img src="screenshots/admin_maps.png" alt="Maps for Admin" width="200" /> | <img src="screenshots/admin_details_map.png" alt="Details on Map" width="200" /> | <img src="screenshots/notifications.png" alt="Admin Notification Screen" width="200" /> |
 | ------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | **View History Details**                                     | **Maps for Admin**                                          | **Details on Map**                                            | **Admin Notification Screen**                                |
 
@@ -67,7 +67,9 @@ Ensure you have Flutter installed on your local machine. Refer to the official g
   - `login_register.dart`: Manages the sign-in process using Firebase Authentication.
   - `admin_dashboard.dart`: Deals with the Admin Dashboard to view CheckIn/CheckOut Histories
   - `maps.dart`: Provides the map to view Employee Location
-  - `firestore_service.dart` and `location_service.dart`: Supporting files for Handling Firebase and location communications
+  - `firestore_service.dart`, `location_service.dart` and `location_setting_monitor`: Supporting files for Handling Firebase and location disabling communications along with FCM Notifications
+  - `notifications.dart`: For Admin Notifications
+  - `main.dart`: For the obvious Main App Settings and ensuring requisities
 
 - **android/**: Contains Android-specific code and configuration files.
   - `AndroidManifest.xml`: Specifies Android app configuration and permissions.
@@ -81,6 +83,7 @@ This application uses Firebase services for authentication and data storage. To 
 2. **Add your Android app:** Include your app (package name found in `android/app/src/main/AndroidManifest.xml`) in the Firebase project. Visit the [Adding Android App to Firebase](https://firebase.google.com/docs/android/setup?authuser=0&hl=en).
 3. **Enable Firebase Authentication:** Activate Firebase Authentication for your app.
 4. **Set up Firestore:** Configure Firestore to store employee check-in/check-out data.
+5. **Setup FCM Messaging** Use the Google Cloud Service account to generate a service key in order to get the file `service_token.json` as per my code. Visit the [Google Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) page to generate the key.
 
 
 
